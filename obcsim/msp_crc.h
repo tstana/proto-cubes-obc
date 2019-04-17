@@ -1,7 +1,7 @@
 /*
- * msp_crc.h
- * Author: John Wikman
- */
+   msp_crc.h
+   Author: John Wikman
+*/
 
 #ifndef MSP_CRC_H
 #define MSP_CRC_H

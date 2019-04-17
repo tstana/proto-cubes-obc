@@ -3,43 +3,57 @@
 #include <SPI.h>
 #include <SD.h>
 static unsigned char conf[300];
-
-void initSD(void){
-    SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
-    SD.remove("Datafil.txt");
+static char filename[] = "log00000.txt";
+void SD_init(void) {
+  SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
+  SD.remove("Datafil.txt");
 }
-void readSD(unsigned char* target, char location[12]){
+void SD_read(unsigned char* target, char location[12]) {
   File confFile = SD.open(location, FILE_READ);
-  if(confFile){
-    for(int i=0; confFile.available(); i++){
+  if (confFile) {
+    for (int i = 0; confFile.available(); i++) {
       target[i] = confFile.read();
     }
     Serial.println(F("SD-card Read"));
   }
   else
-    Serial.println(F("SD-card read failed")); 
+    Serial.println(F("SD-card read failed"));
   confFile.close();
 }
-void sendSD(unsigned char *data, unsigned long len){
-    File dataFile = SD.open("Datafil.txt", FILE_WRITE);
-    if(dataFile){
-      int written = dataFile.write(data, len);
-      dataFile.close();
-      Serial.print(F("SD-card write success, "));
-      Serial.print(written);
-      Serial.println(F(" bytes written"));
-
+void SD_send(unsigned char *data, unsigned long len) {
+  File dataFile;
+  for (uint8_t i = 0; i < 100000; i++) { /* creates a new file every time function is called,  */
+    int j = i;
+    filename[3] = i / 10000;
+    j = i % 10000;
+    filename[4] = j / 1000;
+    j = j % 1000;
+    filename[5] = j / 100;
+    j = j % 100;
+    filename[6] = j / 10;
+    filename[7] = j % 10;
+    if (!SD.exists(filename)) {
+      dataFile = SD.open(filename, FILE_WRITE);
+      break;
     }
-    else
-      Serial.println(F("SD-card write failed"));
+  }
+  if (dataFile) {
+    int written = dataFile.write(data, len);
+    dataFile.close();
+    Serial.print(F("SD-card write success, "));
+    Serial.print(written);
+    Serial.println(F(" bytes written"));
+  }
+  else
+    Serial.println(F("SD-card write failed"));
 }
 
 /* Code for converting the binary files to binary values. Saves data transfer to convert to binary before sending to satellite.
- int cols = 8;
-int j = 0;
-char output[144];
-for(i=0; i<len(input) && input[i] != "\n"; i++){
- if(i%cols == 0 && i != 0){
+  int cols = 8;
+  int j = 0;
+  char output[144];
+  for(i=0; i<len(input) && input[i] != "\n"; i++){
+  if(i%cols == 0 && i != 0){
     j++;
   }
   else {
@@ -50,5 +64,5 @@ for(i=0; i<len(input) && input[i] != "\n"; i++){
       input[i]=(input[i]<<1)+1;
     }
   }
-}
- */
+  }
+*/
