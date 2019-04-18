@@ -2,11 +2,12 @@
 #include "SDcard.hpp"
 #include <SPI.h>
 #include <SD.h>
+#include "RTC.hpp"
+
 static unsigned char conf[300];
 static char filename[] = "log00000.txt";
 void SD_init(void) {
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
-  SD.remove("Datafil.txt");
 }
 void SD_read(unsigned char* target, char location[12]) {
   File confFile = SD.open(location, FILE_READ);
@@ -38,7 +39,9 @@ void SD_send(unsigned char *data, unsigned long len) {
     }
   }
   if (dataFile) {
-    int written = dataFile.write(data, len);
+    int written = dataFile.print("Unix time: ");
+    written += dataFile.println(RTC_get_seconds());
+    written+= dataFile.write(data, len);
     dataFile.close();
     Serial.print(F("SD-card write success, "));
     Serial.print(written);

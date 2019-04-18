@@ -37,12 +37,12 @@ long RTC_get_seconds(void){
   return (rtc.now()).unixtime();
 }
 
-boolean RTC_time_since_last(void){
+boolean RTC_time_since_last(int delaytime){
   long time_now=0;
   static long time_last = 0;
   time_now =RTC_get_seconds();
   int time_since = time_now-time_last;
-  if(time_since > REQUEST_TIME){
+  if(time_since > delaytime){
     time_last = time_now;
     return true;
   }
