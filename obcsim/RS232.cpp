@@ -18,19 +18,19 @@ void RS_read(msp_link_t *lnk) {
   unsigned char command = Serial2.read();
   switch (command) {
     case 'a': /* CITIROC CONF */
-      Serial2.println("CITI_CONF received");
+      Serial.println("CITI_CONF received");
       len = Serial2.available();
       Serial2.readBytes(commanddata, len);
       invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, NONE);
       break;
     case 'b': /* HVPS CONF */
-      Serial2.println("HVPS_CONF received");
+      Serial.println("HVPS_CONF received");
       len = Serial2.available();
       Serial2.readBytes(commanddata, len);
       invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, NONE);
       break;
     case 'c': /* REQUEST HOUSEKEEPING */
-      Serial2.println("HK_REQ received");
+      Serial.println("HK_REQ received");
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
@@ -38,7 +38,7 @@ void RS_read(msp_link_t *lnk) {
       RS_send(recv_buff, recv_len);
       break;
     case 'd': /* Request payload */
-      Serial2.println("Payload request received");
+      Serial.println("Payload request received");
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
