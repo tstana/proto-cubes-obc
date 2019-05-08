@@ -23,16 +23,22 @@ void SD_read(unsigned char* target, char location[12]) {
 }
 void SD_send(unsigned char *data, unsigned long len) {
   File dataFile;
-  for (uint8_t i = 0; i < 100000; i++) { /* creates a new file every time function is called,  */
-    int j = i;
-    filename[3] = i / 10000;
-    j = i % 10000;
+  uint32_t j = 0;
+  for (uint32_t i = 0; i < 100000; i++) { /* creates a new file every time function is called,  */
+    j = i;
+    filename[3] = j / 10000;
+    filename[3] += 0x30;
+    j %= 10000;
     filename[4] = j / 1000;
-    j = j % 1000;
+    filename[4] += 0x30;
+    j %= 1000;
     filename[5] = j / 100;
-    j = j % 100;
+    filename[5] += 0x30;
+    j %= 100;
     filename[6] = j / 10;
+    filename[6] += 0x30;
     filename[7] = j % 10;
+    filename[7] += 0x30;
     if (!SD.exists(filename)) {
       dataFile = SD.open(filename, FILE_WRITE);
       break;
@@ -41,7 +47,7 @@ void SD_send(unsigned char *data, unsigned long len) {
   if (dataFile) {
     int written = dataFile.print("Unix time: ");
     written += dataFile.println(RTC_get_seconds());
-    written+= dataFile.write(data, len);
+    written += dataFile.write(data, len);
     dataFile.close();
     Serial.print(F("SD-card write success, "));
     Serial.print(written);
