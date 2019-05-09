@@ -44,7 +44,6 @@ void loop()
 
   sequence_loop(&exp_link);
   if (Serial2.available()) {
-    delay(15); // to make sure we get all bytes...
     RS_read(&exp_link);
   }
 }

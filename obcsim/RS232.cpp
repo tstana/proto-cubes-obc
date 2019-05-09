@@ -8,44 +8,60 @@
 #include "RS232.hpp"
 
 unsigned char commanddata[143];
-int len = 0;
 static unsigned char recv_buff[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len=0;
-void RS_init(void) {
-  Serial2.begin(115200); //Set 115200 Baud rate, 8bit 1stop no parity
-  while (!Serial2);
 
+static void fill_commanddata(int expected_len)
+{
+  int pos = 0;
+  int len = 0;
+  while (pos < expected_len) {
+    len = Serial2.available();
+    if (len) {
+      pos += len;
+      Serial2.readBytes(commanddata + pos, len);
+      len = 0;
+    }
+  }  
+}
+
+void RS_init(void) {
+  Serial2.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
+  while (!Serial2);
 }
 
 void RS_read(msp_link_t *lnk) {
   unsigned char command = Serial2.read();
+  int len;
   char s[32];
   
   switch (command) {
     case 'a': /* CITIROC CONF */
-      Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
       Serial.println("CITI_CONF received");
-      len = Serial2.available();
-      Serial.print("len: ");
-      Serial.print(len);
-      Serial.println();
-      Serial2.readBytes(commanddata, len);
+      Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
+      len = 143;
+      fill_commanddata(len);
       invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
       Serial.println("--------------------------------------\n");
       break;
     case 'b': /* HVPS CONF */
       Serial.println("HVPS_CONF received");
-      len = Serial2.available();
-      Serial2.readBytes(commanddata, len);
       Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
+      len = 12;
+      fill_commanddata(len);
       invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
       Serial.println("--------------------------------------\n");
       break;
     case 'c': /* REQUEST HOUSEKEEPING */
       Serial.println("HK_REQ received");
+
+      // TODO: Is this really needed?
+      // -->
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
+      // <--
+      
       Serial.println("-------- Invoking REQ_HK -------------\n");
       invoke_request(lnk, MSP_OP_REQ_HK,recv_buff, &recv_len, STRING);
       Serial.println("--------------------------------------\n");
@@ -53,9 +69,14 @@ void RS_read(msp_link_t *lnk) {
       break;
     case 'd': /* Request payload */
       Serial.println("Payload request received");
+
+      // TODO: Is this really needed?
+      // -->
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
+      // <--
+      
       Serial.println("-------- Invoking REQ_PAYLOAD --------\n");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD,recv_buff, &recv_len, STRING);
       Serial.println("--------------------------------------\n");
