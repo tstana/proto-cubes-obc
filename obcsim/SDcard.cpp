@@ -24,21 +24,29 @@ void SD_read(unsigned char* target, char location[12]) {
 void SD_send(unsigned char *data, unsigned long len) {
   File dataFile;
   uint32_t j = 0;
-  for (uint32_t i = 0; i < 100000; i++) { /* creates a new file every time function is called,  */
+  /*
+   * Create a new file every time function is called. The file name is
+   * "logNNNNN.txt", where NNNNN is from the interval [0, 99999]. The
+   * code below parses this interval until a file that does not exist is
+   * found, creates it, then breaks.
+   * 
+   * Adding the '0' character makes ASCII strings out of number calculations.
+   */
+  for (uint32_t i = 0; i < 100000; i++) {
     j = i;
     filename[3] = j / 10000;
-    filename[3] += 0x30;
+    filename[3] += '0';
     j %= 10000;
     filename[4] = j / 1000;
-    filename[4] += 0x30;
+    filename[4] += '0';
     j %= 1000;
     filename[5] = j / 100;
-    filename[5] += 0x30;
+    filename[5] += '0';
     j %= 100;
     filename[6] = j / 10;
-    filename[6] += 0x30;
+    filename[6] += '0';
     filename[7] = j % 10;
-    filename[7] += 0x30;
+    filename[7] += '0';
     if (!SD.exists(filename)) {
       dataFile = SD.open(filename, FILE_WRITE);
       break;
@@ -49,7 +57,9 @@ void SD_send(unsigned char *data, unsigned long len) {
     written += dataFile.println(RTC_get_seconds());
     written += dataFile.write(data, len);
     dataFile.close();
-    Serial.print(F("SD-card write success, "));
+    Serial.print(F("SD-card write success to "));
+    Serial.print(filename);
+    Serial.print(F(", \n  "));
     Serial.print(written);
     Serial.println(F(" bytes written"));
   }
