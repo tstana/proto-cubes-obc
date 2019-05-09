@@ -1,9 +1,12 @@
+#include <string.h>
+
 #include "Arduino.h"
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
 #include "RTClib.h"
 #include "RTC.hpp"
 #include "RS232.hpp"
+
 unsigned char commanddata[143];
 int len = 0;
 static unsigned char recv_buff[REQUEST_BUFFER_SIZE];
@@ -16,25 +19,36 @@ void RS_init(void) {
 
 void RS_read(msp_link_t *lnk) {
   unsigned char command = Serial2.read();
+  char s[32];
+  
   switch (command) {
     case 'a': /* CITIROC CONF */
+      Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
       Serial.println("CITI_CONF received");
       len = Serial2.available();
+      Serial.print("len: ");
+      Serial.print(len);
+      Serial.println();
       Serial2.readBytes(commanddata, len);
-      invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, NONE);
+      invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
+      Serial.println("--------------------------------------\n");
       break;
     case 'b': /* HVPS CONF */
       Serial.println("HVPS_CONF received");
       len = Serial2.available();
       Serial2.readBytes(commanddata, len);
-      invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, NONE);
+      Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
+      invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
+      Serial.println("--------------------------------------\n");
       break;
     case 'c': /* REQUEST HOUSEKEEPING */
       Serial.println("HK_REQ received");
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
+      Serial.println("-------- Invoking REQ_HK -------------\n");
       invoke_request(lnk, MSP_OP_REQ_HK,recv_buff, &recv_len, STRING);
+      Serial.println("--------------------------------------\n");
       RS_send(recv_buff, recv_len);
       break;
     case 'd': /* Request payload */
@@ -42,11 +56,14 @@ void RS_read(msp_link_t *lnk) {
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len);
+      Serial.println("-------- Invoking REQ_PAYLOAD --------\n");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD,recv_buff, &recv_len, STRING);
+      Serial.println("--------------------------------------\n");
       RS_send(recv_buff, recv_len);
       break;
     default:
-      Serial2.println("Command not recognized");
+      sprintf(s, "Command '%c' not recognized \n", command);
+      Serial2.println(s);
       break;
   }
 }
