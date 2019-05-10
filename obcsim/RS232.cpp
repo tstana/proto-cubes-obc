@@ -18,8 +18,8 @@ static void fill_commanddata(int expected_len)
   while (pos < expected_len) {
     len = Serial2.available();
     if (len) {
-      pos += len;
       Serial2.readBytes(commanddata + pos, len);
+      pos += len;
       len = 0;
     }
   }  
