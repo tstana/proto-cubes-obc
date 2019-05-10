@@ -34,6 +34,9 @@
 #ifndef MSP_OP_SEND_CITI_CONF
 #define MSP_OP_SEND_CITI_CONF 0x72
 #endif
+#ifndef MSP_OP_SEND_PROBE_CONF
+#define MSP_OP_SEND_PROBE_CONF 0x73
+#endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
 #endif
@@ -47,6 +50,18 @@
 #define MSP_OP_SLEEP 0x11
 #endif
 
+/*
+ * Proto-CUBES Serial Port Commands
+ *  - write commands (ground to Proto-CUBES) are in capital letters
+ *  - read commands (ground from Proto-CUBES) are in non-capital letters
+ */
+#define CMD_CITIROC_CONF    'C'
+#define CMD_PROBE_CONF      'P'
+#define CMD_HVPS_CONF       'H'
+#define CMD_REQ_HK          'h'
+#define CMD_REQ_PAYLOAD     'p'
+
+/* Function prototypes */
 void sequence_init(msp_link_t *lnk);
 void sequence_loop(msp_link_t *lnk);
 

@@ -36,24 +36,32 @@ void RS_read(msp_link_t *lnk) {
   char s[32];
   
   switch (command) {
-    case 'a': /* CITIROC CONF */
-      Serial.println("CITI_CONF received");
+    case CMD_CITIROC_CONF:
+      Serial.println("CMD_CITI_CONF received");
       Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
       len = 143;
       fill_commanddata(len);
       invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
       Serial.println("--------------------------------------\n");
       break;
-    case 'b': /* HVPS CONF */
-      Serial.println("HVPS_CONF received");
+    case CMD_PROBE_CONF:
+      Serial.println("CMD_PROBE_CONF received");
+      Serial.println("-------- Invoking SEND_PROBE_CONF ----\n");
+      len = 32;
+      fill_commanddata(len);
+      invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
+      Serial.println("--------------------------------------\n");
+      break;
+    case CMD_HVPS_CONF:
+      Serial.println("CMD_HVPS_CONF received");
       Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
       len = 12;
       fill_commanddata(len);
       invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
       Serial.println("--------------------------------------\n");
       break;
-    case 'c': /* REQUEST HOUSEKEEPING */
-      Serial.println("HK_REQ received");
+    case CMD_REQ_HK:
+      Serial.println("CMD_HK_REQ received");
 
       // TODO: Is this really needed?
       // -->
@@ -67,8 +75,8 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       RS_send(recv_buff, recv_len);
       break;
-    case 'd': /* Request payload */
-      Serial.println("Payload request received");
+    case CMD_REQ_PAYLOAD:
+      Serial.println("CMD_REQ_PAYLOAD");
 
       // TODO: Is this really needed?
       // -->
