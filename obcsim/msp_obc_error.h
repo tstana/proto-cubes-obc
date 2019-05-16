@@ -23,6 +23,7 @@
 
 /* Transaction Errors */
 #define MSP_OBC_ERR_TRANSACTION_ABORTED -10
+#define MSP_OBC_ERR_DATA_NOT_SENT       -11
 
 /* Transaction Successes */
 #define MSP_OBC_TRANSACTION_SUCCESSFUL 1

@@ -7,7 +7,6 @@
 #include "obcsim_transactions.hpp"
 #include "msp_obc.h"
 
-
 // Increase buffer size if MTU is larger than 4096
 static unsigned char request_buffer[REQUEST_BUFFER_SIZE + 1];
 static bool request_buffer_overflow = false;
@@ -56,6 +55,15 @@ void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, uns
 		if (pstyle != NONE)
 			Serial.print(F("\nSent "));
 		print_data(data, len, pstyle);
+	} else if ((r.status == MSP_RESPONSE_ERROR) && (r.error_code == MSP_OBC_ERR_DATA_NOT_SENT)) {
+		Serial.println(F("OBC Send request not executed,"));
+		Serial.println(F("  possibly due to mismatching TID...\n"));
+		Serial.println(F("Reattempting transaction..."));
+		/*
+		 * TODO: The call below is susceptible to a race condition, we should
+		 * add a counter for max. number of calls...
+		 */ 
+		invoke_send(lnk, opcode, data, len, pstyle);
 	}
 }
 

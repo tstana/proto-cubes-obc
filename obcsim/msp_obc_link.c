@@ -253,6 +253,9 @@ struct msp_response msp_send_data_frame(msp_link_t *lnk,
 		return msp_response_error(MSP_OBC_ERR_I2C_ERROR);
 	}
 
+	/* Increment number of bytes sent */
+	lnk->processed_length += datalen;
+
 	/* Read acknowledge of data frame next */
 	lnk->next_action = MSP_LINK_ACTION_RX_HEADER;
 
@@ -318,7 +321,7 @@ struct msp_response msp_send_header_frame(msp_link_t *lnk)
 		msp_debug("Invalid state at 1st switch statement in msp_send_header_frame");
 		return msp_response_error(MSP_OBC_ERR_INVALID_STATE);
 	}
-
+	
 	code = msp_obc_encode_frame(lnk, lnk->buffer, &len, frame);
 	if (code) {
 		lnk->corrupt_frame_count += 1;
@@ -534,8 +537,13 @@ struct msp_response msp_recv_header_frame(msp_link_t *lnk)
 		if (frame.opcode == MSP_OP_T_ACK) {
 			/* Transaction Complete */
 			msp_seqflags_set(&lnk->flags, lnk->opcode, lnk->transaction_id);
-			r = msp_response_successful(lnk);
-			msp_set_as_ready(lnk);
+			if (lnk->processed_length == lnk->total_length) {
+				r = msp_response_successful(lnk);
+				msp_set_as_ready(lnk);
+			} else {
+				r = msp_response_error(MSP_OBC_ERR_DATA_NOT_SENT);
+				msp_set_as_ready(lnk);
+			}
 		} else if (frame.opcode == MSP_OP_F_ACK) {
 			/* Treat the F_ACK differently depending on the state */
 			len = msp_next_data_length(lnk);
@@ -549,7 +557,6 @@ struct msp_response msp_recv_header_frame(msp_link_t *lnk)
 				/* Acknowledged, setup data next frame */
 				lnk->next_action = MSP_LINK_ACTION_TX_DATA;
 				lnk->frame_id = frame.id ^ 1;
-				lnk->processed_length += len;
 				r = msp_response_ok();
 			} else {
 				/* We should've gotten a T_ACK here! */
