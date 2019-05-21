@@ -37,7 +37,7 @@ void RS_read(msp_link_t *lnk) {
   
   switch (command) {
     case CMD_CITIROC_CONF:
-      Serial.println("CMD_CITI_CONF received");
+      Serial2.println("CMD_CITI_CONF received");
       Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
       len = 143;
       fill_commanddata(len);
@@ -45,7 +45,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_PROBE_CONF:
-      Serial.println("CMD_PROBE_CONF received");
+      Serial2.println("CMD_PROBE_CONF received");
       Serial.println("-------- Invoking SEND_PROBE_CONF ----\n");
       len = 32;
       fill_commanddata(len);
@@ -53,7 +53,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_HVPS_CONF:
-      Serial.println("CMD_HVPS_CONF received");
+      Serial2.println("CMD_HVPS_CONF received");
       Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
       len = 12;
       fill_commanddata(len);
@@ -61,7 +61,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_REQ_HK:
-      Serial.println("CMD_HK_REQ received");
+      Serial2.println("CMD_HK_REQ received");
 
       // TODO: Is this really needed?
       // -->
