@@ -16,9 +16,9 @@ static void fill_commanddata(int expected_len)
   int pos = 0;
   int len = 0;
   while (pos < expected_len) {
-    len = Serial2.available();
+    len = Serial.available();
     if (len) {
-      Serial2.readBytes(commanddata + pos, len);
+      Serial.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
     }
@@ -26,18 +26,18 @@ static void fill_commanddata(int expected_len)
 }
 
 void RS_init(void) {
-  Serial2.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
-  while (!Serial2);
+  Serial.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
+  while (!Serial);
 }
 
 void RS_read(msp_link_t *lnk) {
-  unsigned char command = Serial2.read();
+  unsigned char command = Serial.read();
   int len;
   char s[32];
   
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
-      Serial2.println("CMD_SEND_CITI_CONF received");
+      Serial.println("CMD_SEND_CITI_CONF received");
       Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
       len = 143;
       fill_commanddata(len);
@@ -45,7 +45,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_SEND_PROBE_CONF:
-      Serial2.println("CMD_SEND_PROBE_CONF received");
+      Serial.println("CMD_SEND_PROBE_CONF received");
       len = 32;
       fill_commanddata(len);
       Serial.println("-------- Invoking SEND_PROBE_CONF ----\n");
@@ -53,7 +53,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_SEND_HVPS_CONF:
-      Serial2.println("CMD_SEND_HVPS_CONF received");
+      Serial.println("CMD_SEND_HVPS_CONF received");
       len = 12;
       fill_commanddata(len);
       Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
@@ -61,20 +61,20 @@ void RS_read(msp_link_t *lnk) {
       Serial.println("--------------------------------------\n");
       break;
     case CMD_SEND_DAQ_DUR_AND_START:
-      Serial2.println("CMD_SEND_DAQ_DUR_AND_START received");
+      Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
       len = 4;
       fill_commanddata(len);
       Serial.println("-- Invoking SEND_DAQ_DUR_AND_START --\n");
       invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
       Serial.println("--------------------------------------\n");
     case CMD_REQ_HK:
-      Serial2.println("CMD_HK_REQ received");
+      Serial.println("CMD_HK_REQ received");
 
       // TODO: Is this really needed?
       // -->
-      len = Serial2.available();
+      len = Serial.available();
       if (len > 0)
-        Serial2.readBytes(commanddata, len);
+        Serial.readBytes(commanddata, len);
       // <--
       
       Serial.println("-------- Invoking REQ_HK -------------\n");
@@ -87,9 +87,9 @@ void RS_read(msp_link_t *lnk) {
 
       // TODO: Is this really needed?
       // -->
-      len = Serial2.available();
+      len = Serial.available();
       if (len > 0)
-        Serial2.readBytes(commanddata, len);
+        Serial.readBytes(commanddata, len);
       // <--
       
       Serial.println("-------- Invoking REQ_PAYLOAD --------\n");
@@ -99,15 +99,15 @@ void RS_read(msp_link_t *lnk) {
       break;
     default:
       sprintf(s, "Command '%c' not recognized \n", command);
-      Serial2.println(s);
+      Serial.println(s);
       break;
   }
 }
 
 void RS_send(unsigned char *sends, int len) {
   DateTime CurrentTime = RTC_get();
-  Serial2.print("Unix time: ");
-  Serial2.println(CurrentTime.unixtime());
-  Serial2.write(sends, len);
-  Serial2.println("");
+  Serial.print("Unix time: ");
+  Serial.println(CurrentTime.unixtime());
+  Serial.write(sends, len);
+  Serial.println("");
 }

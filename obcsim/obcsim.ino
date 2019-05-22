@@ -28,8 +28,9 @@ void setup()
   RS_init();
   SD_init();
   RTC_init();
-  Serial.begin(9600);
-  Serial2.println(F("Proto-CUBES OBC started"));
+  Serial.println("-------------------------\n");
+  Serial.println(" Proto-CUBES OBC started\n");
+  Serial.println("-------------------------\n");
 }
 
 /* Arduino Loop */
@@ -43,7 +44,7 @@ void loop()
   }
 
   sequence_loop(&exp_link);
-  if (Serial2.available()) {
+  if (Serial.available()) {
     RS_read(&exp_link);
   }
 }

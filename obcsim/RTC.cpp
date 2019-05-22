@@ -5,27 +5,27 @@ RTC_PCF8523 rtc;
 
 void RTC_init(void) {
   if (!rtc.begin()) {
-    Serial2.println("RTC could not be found");
+    Serial.println("RTC could not be found");
   }
   if (!rtc.initialized()) {
-    Serial2.println("RTC initializing");
+    Serial.println("RTC initializing");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     DateTime now = rtc.now();
-    Serial2.print("RTC set to: ");
-    Serial2.print(now.year(), DEC);
-    Serial2.print('/');
-    Serial2.print(now.month(), DEC);
-    Serial2.print('/');
-    Serial2.print(now.day(), DEC);
-    Serial2.print(", ");
-    Serial2.print(now.hour(), DEC);
-    Serial2.print(':');
-    Serial2.print(now.minute(), DEC);
-    Serial2.print(':');
-    Serial2.print(now.second(), DEC);
-    Serial2.println();
-    Serial2.print("Unix time: ");
-    Serial2.println(now.unixtime());
+    Serial.print("RTC set to: ");
+    Serial.print(now.year(), DEC);
+    Serial.print('/');
+    Serial.print(now.month(), DEC);
+    Serial.print('/');
+    Serial.print(now.day(), DEC);
+    Serial.print(", ");
+    Serial.print(now.hour(), DEC);
+    Serial.print(':');
+    Serial.print(now.minute(), DEC);
+    Serial.print(':');
+    Serial.print(now.second(), DEC);
+    Serial.println();
+    Serial.print("Unix time: ");
+    Serial.println(now.unixtime());
   }
 }
 
