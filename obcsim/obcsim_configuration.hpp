@@ -37,6 +37,9 @@
 #ifndef MSP_OP_SEND_PROBE_CONF
 #define MSP_OP_SEND_PROBE_CONF 0x73
 #endif
+#ifndef MSP_OP_SEND_DAQ_DUR_AND_START
+#define MSP_OP_SEND_DAQ_DUR_AND_START 0x74
+#endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
 #endif
@@ -55,11 +58,12 @@
  *  - write commands (ground to Proto-CUBES) are in capital letters
  *  - read commands (ground from Proto-CUBES) are in non-capital letters
  */
-#define CMD_CITIROC_CONF    'C'
-#define CMD_PROBE_CONF      'P'
-#define CMD_HVPS_CONF       'H'
-#define CMD_REQ_HK          'h'
-#define CMD_REQ_PAYLOAD     'p'
+#define CMD_SEND_CITIROC_CONF       'C'
+#define CMD_SEND_PROBE_CONF         'P'
+#define CMD_SEND_HVPS_CONF          'H'
+#define CMD_SEND_DAQ_DUR_AND_START  'D'
+#define CMD_REQ_HK                  'h'
+#define CMD_REQ_PAYLOAD             'p'
 
 /* Function prototypes */
 void sequence_init(msp_link_t *lnk);

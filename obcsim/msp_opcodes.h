@@ -30,7 +30,6 @@
 #define MSP_OP_SEND_TIME   0x30
 #define MSP_OP_SEND_PUS    0x31
 
-
 /* Values for determining opcode type */
 #define MSP_OP_TYPE_CTRL 0x00
 #define MSP_OP_TYPE_SYS  0x10
