@@ -28,9 +28,9 @@ void setup()
   RS_init();
   SD_init();
   RTC_init();
-  Serial.println("-------------------------\n");
-  Serial.println(" Proto-CUBES OBC started\n");
-  Serial.println("-------------------------\n");
+  Serial.println("-------------------------");
+  Serial.println(" Proto-CUBES OBC started");
+  Serial.println("-------------------------");
 }
 
 /* Arduino Loop */

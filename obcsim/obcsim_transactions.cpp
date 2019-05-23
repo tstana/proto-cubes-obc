@@ -57,7 +57,7 @@ void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, uns
 		print_data(data, len, pstyle);
 	} else if ((r.status == MSP_RESPONSE_ERROR) && (r.error_code == MSP_OBC_ERR_DATA_NOT_SENT)) {
 		Serial.println(F("OBC Send request not executed,"));
-		Serial.println(F("  possibly due to mismatching TID...\n"));
+		Serial.println(F("  possibly due to mismatching TID..."));
 		Serial.println(F("Reattempting transaction..."));
 		/*
 		 * TODO: The call below is susceptible to a race condition, we should

@@ -38,35 +38,35 @@ void RS_read(msp_link_t *lnk) {
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
       Serial.println("CMD_SEND_CITI_CONF received");
-      Serial.println("-------- Invoking SEND_CITI_CONF -----\n");
+      Serial.println("-------- Invoking SEND_CITI_CONF -----");
       len = 143;
       fill_commanddata(len);
       invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
       break;
     case CMD_SEND_PROBE_CONF:
       Serial.println("CMD_SEND_PROBE_CONF received");
       len = 32;
       fill_commanddata(len);
-      Serial.println("-------- Invoking SEND_PROBE_CONF ----\n");
+      Serial.println("-------- Invoking SEND_PROBE_CONF ----");
       invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
       break;
     case CMD_SEND_HVPS_CONF:
       Serial.println("CMD_SEND_HVPS_CONF received");
       len = 12;
       fill_commanddata(len);
-      Serial.println("-------- Invoking SEND_HVPS_CONF -----\n");
+      Serial.println("-------- Invoking SEND_HVPS_CONF -----");
       invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
       break;
     case CMD_SEND_DAQ_DUR_AND_START:
       Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
       len = 4;
       fill_commanddata(len);
-      Serial.println("-- Invoking SEND_DAQ_DUR_AND_START --\n");
+      Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
       invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
 
@@ -77,9 +77,9 @@ void RS_read(msp_link_t *lnk) {
         Serial.readBytes(commanddata, len);
       // <--
       
-      Serial.println("-------- Invoking REQ_HK -------------\n");
+      Serial.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK,recv_buff, &recv_len, STRING);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
       RS_send(recv_buff, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
@@ -92,9 +92,9 @@ void RS_read(msp_link_t *lnk) {
         Serial.readBytes(commanddata, len);
       // <--
       
-      Serial.println("-------- Invoking REQ_PAYLOAD --------\n");
+      Serial.println("-------- Invoking REQ_PAYLOAD --------");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buff, &recv_len, STRING);
-      Serial.println("--------------------------------------\n");
+      Serial.println("--------------------------------------");
       RS_send(recv_buff, recv_len);
       break;
     default:
