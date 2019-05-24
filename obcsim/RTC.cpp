@@ -4,11 +4,11 @@
 RTC_PCF8523 rtc;
 
 void RTC_init(void) {
+  Serial.println("RTC initializing");
   if (!rtc.begin()) {
     Serial.println("RTC could not be found");
   }
   if (!rtc.initialized()) {
-    Serial.println("RTC initializing");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     DateTime now = rtc.now();
     Serial.print("RTC set to: ");

@@ -7,6 +7,7 @@
 static unsigned char conf[300];
 static char filename[] = "log00000.txt";
 void SD_init(void) {
+  Serial.println("SD card initializing...");
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
 void SD_read(unsigned char* target, char location[12]) {

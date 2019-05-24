@@ -26,11 +26,11 @@ void setup()
   /* Start I2C */
   msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
   RS_init();
-  SD_init();
-  RTC_init();
   Serial.println("-------------------------");
   Serial.println(" Proto-CUBES OBC started");
   Serial.println("-------------------------");
+  SD_init();
+  RTC_init();
 }
 
 /* Arduino Loop */
