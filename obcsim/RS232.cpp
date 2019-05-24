@@ -62,11 +62,12 @@ void RS_read(msp_link_t *lnk) {
       break;
     case CMD_SEND_DAQ_DUR_AND_START:
       Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
-      len = 4;
+      len = 1;
       fill_commanddata(len);
       Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
       invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
       Serial.println("--------------------------------------");
+      break;
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
 
