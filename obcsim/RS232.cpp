@@ -8,7 +8,7 @@
 #include "RS232.hpp"
 
 unsigned char commanddata[143];
-static unsigned char recv_buff[REQUEST_BUFFER_SIZE];
+static unsigned char *recv_buff;  // Allocated inside obcsim_transactions.cpp
 static unsigned long recv_len=0;
 
 static void fill_commanddata(int expected_len)
@@ -79,7 +79,7 @@ void RS_read(msp_link_t *lnk) {
       // <--
       
       Serial.println("-------- Invoking REQ_HK -------------");
-      invoke_request(lnk, MSP_OP_REQ_HK,recv_buff, &recv_len, STRING);
+      invoke_request(lnk, MSP_OP_REQ_HK, recv_buff, &recv_len, STRING);
       Serial.println("--------------------------------------");
       RS_send(recv_buff, recv_len);
       break;
