@@ -8,8 +8,8 @@
 #include "RS232.hpp"
 
 unsigned char commanddata[143];
-static unsigned char *recv_buff;  // Allocated inside obcsim_transactions.cpp
-static unsigned long recv_len=0;
+static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
+static unsigned long recv_len = 0;
 
 static void fill_commanddata(int expected_len)
 {
@@ -22,7 +22,7 @@ static void fill_commanddata(int expected_len)
       pos += len;
       len = 0;
     }
-  }  
+  }
 }
 
 void RS_init(void) {
@@ -79,9 +79,9 @@ void RS_read(msp_link_t *lnk) {
       // <--
       
       Serial.println("-------- Invoking REQ_HK -------------");
-      invoke_request(lnk, MSP_OP_REQ_HK, recv_buff, &recv_len, STRING);
+      invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, STRING);
       Serial.println("--------------------------------------");
-      RS_send(recv_buff, recv_len);
+      RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
       Serial.println("CMD_REQ_PAYLOAD");
@@ -94,9 +94,9 @@ void RS_read(msp_link_t *lnk) {
       // <--
       
       Serial.println("-------- Invoking REQ_PAYLOAD --------");
-      invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buff, &recv_len, STRING);
+      invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, STRING);
       Serial.println("--------------------------------------");
-      RS_send(recv_buff, recv_len);
+      RS_send(recv_buf, recv_len);
       break;
     default:
       sprintf(s, "Command '%c' not recognized \n", command);

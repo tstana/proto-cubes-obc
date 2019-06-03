@@ -14,8 +14,6 @@ static unsigned char data_seqinit2[] = {0xAA, 0x10, 0x50, 0x30};
 static char data_SEND_TIME[10] = "";
 static char conf[12] = "conf.txt";
 static char prob[12] = "probe.txt";
-static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
-static unsigned long buf_len=0;
 
 void sequence_init(msp_link_t *lnk)
 {

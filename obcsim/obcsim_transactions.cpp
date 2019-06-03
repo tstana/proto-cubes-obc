@@ -7,8 +7,8 @@
 #include "obcsim_transactions.hpp"
 #include "msp_obc.h"
 
-// Increase buffer size if MTU is larger than 4096
-static unsigned char request_buffer[REQUEST_BUFFER_SIZE + 1];
+static unsigned char *request_buffer;
+static unsigned char send_repeat_buffer[EXP_MTU];
 static bool request_buffer_overflow = false;
 
 static unsigned char *send_buffer;
@@ -72,9 +72,8 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 	struct msp_response r;
 	unsigned long i, len;
 
-	// Re-use the request buffer to store the data to be repeated
 	for (i = 0; i < EXP_MTU; ++i)
-		request_buffer[i] = value;
+		send_repeat_buffer[i] = value;
 
 	r = msp_start_transaction(lnk, opcode, times);
 	while (msp_is_active(lnk)) {
@@ -88,7 +87,7 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 			r = msp_recv_header_frame(lnk);
 			break;
 		case MSP_LINK_ACTION_TX_DATA:
-			r = msp_send_data_frame(lnk, request_buffer, len);
+			r = msp_send_data_frame(lnk, send_repeat_buffer, len);
 			break;
 		default:
 			// this should never be reached, so then we abort if this is the case
@@ -113,10 +112,11 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 	}
 }
 
-void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_buffer, unsigned long *buffer_length, PrintStyle pstyle)
+void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_buffer, unsigned long *recv_length, PrintStyle pstyle)
 {
 	struct msp_response r;
 
+	request_buffer = recv_buffer;
 	request_buffer_overflow = false;
 	r = msp_start_transaction(lnk, opcode, 0);
 	while (msp_is_active(lnk)) {
@@ -132,8 +132,7 @@ void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_b
 		Serial.print(REQUEST_BUFFER_SIZE, DEC);
 		Serial.println(F(" bytes of data.)"));
 	} else if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
-		recv_buffer = request_buffer;
-		*buffer_length=r.len;
+		*recv_length = r.len;
 		if (pstyle != NONE)
 			Serial.print(F("\nReceived "));
 		print_data(request_buffer, r.len, pstyle);

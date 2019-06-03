@@ -19,6 +19,6 @@ enum PrintStyle {
 void invoke_syscommand(msp_link_t *lnk, unsigned char opcode);
 void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, unsigned long len, PrintStyle pstyle);
 void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char value, unsigned long times, PrintStyle pstyle);
-void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_buffer, unsigned long *buffer_length, PrintStyle pstyle);
+void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_buffer, unsigned long *recv_length, PrintStyle pstyle);
 
 #endif /* OBCSIM_TRANSACTIONS_H */
