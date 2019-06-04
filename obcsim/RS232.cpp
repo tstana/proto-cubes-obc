@@ -30,7 +30,8 @@ void RS_init(void) {
   while (!Serial);
 }
 
-void RS_read(msp_link_t *lnk) {
+void RS_read(msp_link_t *lnk)
+{
   unsigned char command = Serial.read();
   int len;
   char s[32];
@@ -84,7 +85,8 @@ void RS_read(msp_link_t *lnk) {
       RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
-      Serial.println("CMD_REQ_PAYLOAD");
+    {                                                 // <<<<< TODO: Remove me!
+      Serial.println("CMD_REQ_PAYLOAD received");
 
       // TODO: Is this really needed?
       // -->
@@ -94,10 +96,48 @@ void RS_read(msp_link_t *lnk) {
       // <--
       
       Serial.println("-------- Invoking REQ_PAYLOAD --------");
-      invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, STRING);
+      //invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, STRING);
+
+      // TODO: Remove from here --->
+      /* Fill in histogram data */
+      uint16_t i = 0;
+      uint16_t val = 0;
+
+      // Histogram header
+      recv_buf[0] = (unsigned char)'C';
+      recv_buf[1] = (unsigned char)'1';
+      for (i = 2; i < 254; ++i) {
+        recv_buf[i] = 0;
+      }
+      val = 2048;
+      recv_buf[254] = (val >> 8) & 0xFF;
+      recv_buf[255] = val & 0xFF;
+
+      // Histogram data
+      for (int j = 0; j < 6; ++j) {
+        val = 0;
+        for (i = 0; i < 2048; ++i) {
+          recv_buf[256 + 4096*j + i*2    ] = (val >> 8) & 0xFF;
+          recv_buf[256 + 4096*j + i*2 + 1] = val & 0xFF;
+          val += 32;
+        }
+      }
+
+      // Print data
+      // uint16_t histo[REQUEST_BUFFER_SIZE/2];
+      // for (i = 0; i < REQUEST_BUFFER_SIZE/2; ++i) {
+      //   histo[i] = (recv_buf[i*2] << 8) | (recv_buf[i*2 + 1]);
+      //   sprintf(s, "histo[%d] = % 5d", i, histo[i]);
+      //   Serial.println(s);
+      // }
+
+      recv_len = REQUEST_BUFFER_SIZE-25; //-25 to allow for "Unix time: xxxxxxx\r\n - DATADATADATA - \r\n"
+      // TODO: Remove to here <---
+
       Serial.println("--------------------------------------");
       RS_send(recv_buf, recv_len);
       break;
+    }                                                 // <<<<< TODO: Remove me!
     default:
       sprintf(s, "Command '%c' not recognized \n", command);
       Serial.println(s);
