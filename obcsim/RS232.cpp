@@ -11,18 +11,39 @@ unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
 
-static void fill_commanddata(int expected_len)
+static boolean fill_commanddata(int expected_len)
 {
   int pos = 0;
   int len = 0;
-  while (pos < expected_len) {
+  int TU  = 0;
+  int transfer_size = 32;
+  for (int i=0; i<expected_len/transfer_size; i++){
+    len = Serial.available();
+    if(len){
+      if(len<transfer_size)
+        TU = len;
+      else
+        TU = transfer_size;
+      
+      Serial.readBytes(commanddata + pos, TU);
+      pos += TU;
+      len = 0;
+    }  
+  }
+  if(pos != expected_len){
+     Serial.println("Data stream interrupted, command not executed");
+     memset(commanddata, '\0', 143);
+     return false;
+    }
+  /*while (pos < expected_len) {
     len = Serial.available();
     if (len) {
       Serial.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
     }
-  }
+  }*/
+  return true;
 }
 
 void RS_init(void) {
@@ -38,35 +59,39 @@ void RS_read(msp_link_t *lnk) {
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
       Serial.println("CMD_SEND_CITI_CONF received");
-      Serial.println("-------- Invoking SEND_CITI_CONF -----");
       len = 143;
-      fill_commanddata(len);
-      invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------");
+      if(fill_commanddata(len)){
+        Serial.println("-------- Invoking SEND_CITI_CONF -----");
+        invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
       break;
     case CMD_SEND_PROBE_CONF:
       Serial.println("CMD_SEND_PROBE_CONF received");
       len = 32;
-      fill_commanddata(len);
-      Serial.println("-------- Invoking SEND_PROBE_CONF ----");
-      invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------");
+      if(fill_commanddata(len)){
+        Serial.println("-------- Invoking SEND_PROBE_CONF ----");
+        invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
       break;
     case CMD_SEND_HVPS_CONF:
       Serial.println("CMD_SEND_HVPS_CONF received");
       len = 12;
-      fill_commanddata(len);
-      Serial.println("-------- Invoking SEND_HVPS_CONF -----");
-      invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
-      Serial.println("--------------------------------------");
+      if(fill_commanddata(len)){
+        Serial.println("-------- Invoking SEND_HVPS_CONF -----");
+        invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
       break;
     case CMD_SEND_DAQ_DUR_AND_START:
       Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
       len = 1;
-      fill_commanddata(len);
-      Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
-      invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
-      Serial.println("--------------------------------------");
+      if(fill_commanddata(len)){
+        Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
+        invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
       break;
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
