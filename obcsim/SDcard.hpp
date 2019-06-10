@@ -13,7 +13,7 @@ void SD_init(void);
  * Reads data from file on SD-card to target buffer
  * Input: Target buffer and file name of reading location
  */
-void SD_read(unsigned char* target, char location[12]);
+void SD_read(void);
 
 /*
  * SD_send
