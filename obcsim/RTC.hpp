@@ -26,3 +26,18 @@ boolean RTC_time_since_last(int delaytime);
  * Returns a long with the current time in unixtime (seconds since 1st of january 1970)
  */
 long RTC_get_seconds(void);
+
+
+/*
+* RTC_data_request_timer
+* Returns a boolean if timer target has been hit (not interrupt, so might not be 100% accurate)
+*
+*/
+boolean RTC_data_request_timer(void);
+
+/*
+* RTC_change_timer
+* Changes the time target for the timer in RTC, called whenever DAQDUR is used 
+*/
+
+void RTC_change_timer(int request_timer);

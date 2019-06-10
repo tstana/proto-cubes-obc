@@ -1,4 +1,4 @@
-
+#include <SD.h>
 #ifndef SDCARD_H
 #define SDCARD_H
 
@@ -9,11 +9,20 @@
 void SD_init(void);
 
 /*
- * SD_read
+ * SD_read_data
+ * Reads data from payload file on SD-card and sends over serial.
+ * Increments payload file name after each successful read.
+ * Input: None
+ */
+void SD_read_data(void);
+
+
+/*
+ * SD_read_data
  * Reads data from file on SD-card to target buffer
  * Input: Target buffer and file name of reading location
  */
-void SD_read(void);
+void SD_read(unsigned char* target, char location[12]);
 
 /*
  * SD_send

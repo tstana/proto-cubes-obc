@@ -4,14 +4,12 @@
 #include <SD.h>
 #include "RTC.hpp"
 
-static unsigned char conf[300];
 static char filename[] = "log00000.txt";
 void SD_init(void) {
   Serial.println("SD card initializing...");
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
-void SD_read(void) {
-  char temp;
+void SD_read_data(void) {
   static int filecounter = 0;
   int j = filecounter;
   filename[3] = j / 10000;
@@ -27,30 +25,46 @@ void SD_read(void) {
   filename[6] += '0';
   filename[7] = j % 10;
   filename[7] += '0';
-  File readFile = SD.open(filename, FILE_READ);
-  if (readFile) {
-    for (int i = 0; readFile.available(); i++) {
-      Serial.write(readFile.read());
+  if (SD.exists(filename)) {
+    File readFile = SD.open(filename, FILE_READ);
+    if (readFile) {
+      for (int i = 0; readFile.available(); i++) {
+        Serial.write(readFile.read());
+      }
+      Serial.println("");
+      readFile.close();
+      filecounter++;
     }
-    Serial.println("");
-    Serial.println(F("SD-card Read"));
-    readFile.close();
-    filecounter++;
+    else
+      Serial.println(F("SD-card read failed"));
   }
   else
     Serial.println(F("SD-card read failed, file does not exist."));
+}
+
+void SD_read(unsigned char* target, char location[12]) {
+  File confFile = SD.open(location, FILE_READ);
+  if (confFile) {
+    for (int i = 0; confFile.available(); i++) {
+      target[i] = confFile.read();
+    }
+    Serial.println(F("SD-card Read"));
+  }
+  else
+    Serial.println(F("SD-card read failed"));
+  confFile.close();
 }
 void SD_send(unsigned char *data, unsigned long len) {
   File dataFile;
   uint32_t j = 0;
   /*
-   * Create a new file every time function is called. The file name is
-   * "logNNNNN.txt", where NNNNN is from the interval [0, 99999]. The
-   * code below parses this interval until a file that does not exist is
-   * found, creates it, then breaks.
-   * 
-   * Adding the '0' character makes ASCII strings out of number calculations.
-   */
+     Create a new file every time function is called. The file name is
+     "logNNNNN.txt", where NNNNN is from the interval [0, 99999]. The
+     code below parses this interval until a file that does not exist is
+     found, creates it, then breaks.
+
+     Adding the '0' character makes ASCII strings out of number calculations.
+  */
   for (uint32_t i = 0; i < 100000; i++) {
     j = i;
     filename[3] = j / 10000;
