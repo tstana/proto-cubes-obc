@@ -4,28 +4,28 @@
 RTC_PCF8523 rtc;
 
 void RTC_init(void) {
-  SerialUSB.println("RTC initializing");
+  Serial.println("RTC initializing");
   if (!rtc.begin()) {
-    SerialUSB.println("RTC could not be found");
+    Serial.println("RTC could not be found");
   }
   if (!rtc.initialized()) {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     DateTime now = rtc.now();
-    SerialUSB.print("RTC set to: ");
-    SerialUSB.print(now.year(), DEC);
-    SerialUSB.print('/');
-    SerialUSB.print(now.month(), DEC);
-    SerialUSB.print('/');
-    SerialUSB.print(now.day(), DEC);
-    SerialUSB.print(", ");
-    SerialUSB.print(now.hour(), DEC);
-    SerialUSB.print(':');
-    SerialUSB.print(now.minute(), DEC);
-    SerialUSB.print(':');
-    SerialUSB.print(now.second(), DEC);
-    SerialUSB.println();
-    SerialUSB.print("Unix time: ");
-    SerialUSB.println(now.unixtime());
+    Serial.print("RTC set to: ");
+    Serial.print(now.year(), DEC);
+    Serial.print('/');
+    Serial.print(now.month(), DEC);
+    Serial.print('/');
+    Serial.print(now.day(), DEC);
+    Serial.print(", ");
+    Serial.print(now.hour(), DEC);
+    Serial.print(':');
+    Serial.print(now.minute(), DEC);
+    Serial.print(':');
+    Serial.print(now.second(), DEC);
+    Serial.println();
+    Serial.print("Unix time: ");
+    Serial.println(now.unixtime());
   }
 }
 

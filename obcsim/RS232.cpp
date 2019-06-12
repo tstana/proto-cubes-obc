@@ -17,9 +17,9 @@ static boolean fill_commanddata(int expected_len)
   int len = 0;
   int loops = 0;
   while (pos < expected_len && loops <1000) {
-    len = Serial.available();
+    len = Serial2.available();
     if (len) {
-      Serial.readBytes(commanddata + pos, len);
+      Serial2.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
       loops++;
@@ -29,10 +29,10 @@ static boolean fill_commanddata(int expected_len)
 }
 
 
-void RS_init(void) {
-  Serial.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
-  SerialUSB.begin(115200);
-  while (!Serial);
+void RS_init(void)
+{
+  Serial2.begin(115200);
+  while (!Serial2);
 }
 
 void RS_read(msp_link_t *lnk)
@@ -43,66 +43,66 @@ void RS_read(msp_link_t *lnk)
   
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
-      SerialUSB.println("CMD_SEND_CITI_CONF received");
+      Serial.println("CMD_SEND_CITI_CONF received");
       len = 143;
       if(fill_commanddata(len)){
-        SerialUSB.println("-------- Invoking SEND_CITI_CONF -----");
+        Serial.println("-------- Invoking SEND_CITI_CONF -----");
         invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
-        SerialUSB.println("--------------------------------------");
+        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_PROBE_CONF:
-      SerialUSB.println("CMD_SEND_PROBE_CONF received");
+      Serial.println("CMD_SEND_PROBE_CONF received");
       len = 32;
       if(fill_commanddata(len)){
-        SerialUSB.println("-------- Invoking SEND_PROBE_CONF ----");
+        Serial.println("-------- Invoking SEND_PROBE_CONF ----");
         invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
-        SerialUSB.println("--------------------------------------");
+        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_HVPS_CONF:
-      SerialUSB.println("CMD_SEND_HVPS_CONF received");
+      Serial.println("CMD_SEND_HVPS_CONF received");
       len = 12;
       if(fill_commanddata(len)){
-        SerialUSB.println("-------- Invoking SEND_HVPS_CONF -----");
+        Serial.println("-------- Invoking SEND_HVPS_CONF -----");
         invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
-        SerialUSB.println("--------------------------------------");
+        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_DAQ_DUR_AND_START:
-      SerialUSB.println("CMD_SEND_DAQ_DUR_AND_START received");
+      Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
       len = 1;
       if(fill_commanddata(len)){
-        SerialUSB.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
+        Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
         invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
-        SerialUSB.println("--------------------------------------");
+        Serial.println("--------------------------------------");
       }
       break;
     case CMD_REQ_HK:
-      SerialUSB.println("CMD_HK_REQ received");
+      Serial.println("CMD_HK_REQ received");
 
       // TODO: Is this really needed?
       // -->
-      len = Serial.available();
+      len = Serial2.available();
       if (len > 0)
-        Serial.readBytes(commanddata, len);
+        Serial2.readBytes(commanddata, len);
       // <--
       
-      SerialUSB.println("-------- Invoking REQ_HK -------------");
+      Serial.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, STRING);
-      SerialUSB.println("--------------------------------------");
+      Serial.println("--------------------------------------");
       RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
     {                                                 // <<<<< TODO: Remove me!
-      SerialUSB.println("CMD_REQ_PAYLOAD received");
+      Serial.println("CMD_REQ_PAYLOAD received");
 
       // TODO: Is this really needed?
       // -->
-      SerialUSB.println("CMD_REQ_PAYLOAD");
-      len = Serial.available();
+      Serial.println("CMD_REQ_PAYLOAD");
+      len = Serial2.available();
       if (len > 0)
-        Serial.readBytes(commanddata, len);
+        Serial2.readBytes(commanddata, len);
       // <--
       
       Serial.println("-------- Invoking REQ_PAYLOAD --------");
@@ -144,13 +144,13 @@ void RS_read(msp_link_t *lnk)
       recv_len = REQUEST_BUFFER_SIZE-25; //-25 to allow for "Unix time: xxxxxxx\r\n - DATADATADATA - \r\n"
       // TODO: Remove to here <---
 
-      SerialUSB.println("--------------------------------------");
+      Serial.println("--------------------------------------");
       RS_send(recv_buf, recv_len);
       break;
     }                                                 // <<<<< TODO: Remove me!
     default:
       sprintf(s, "Command '%c' not recognized \n", command);
-      SerialUSB.println(s);
+      Serial.println(s);
       break;
   }
 }
@@ -158,8 +158,8 @@ void RS_read(msp_link_t *lnk)
 void RS_send(unsigned char *sends, int len)
 {
   DateTime CurrentTime = RTC_get();
-  Serial.print("Unix time: ");
-  Serial.println(CurrentTime.unixtime());
-  Serial.write(sends, len);
-  Serial.println("");
+  Serial2.print("Unix time: ");
+  Serial2.println(CurrentTime.unixtime());
+  Serial2.write(sends, len);
+  Serial2.println("");
 }
