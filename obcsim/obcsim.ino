@@ -26,9 +26,9 @@ void setup()
   /* Start I2C */
   msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
   RS_init();
-  Serial.println("-------------------------");
-  Serial.println(" Proto-CUBES OBC started");
-  Serial.println("-------------------------");
+  SerialUSB.println("-------------------------");
+  SerialUSB.println(" Proto-CUBES OBC started");
+  SerialUSB.println("-------------------------");
   SD_init();
   RTC_init();
 }

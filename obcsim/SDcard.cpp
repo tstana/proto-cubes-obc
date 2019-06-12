@@ -7,19 +7,55 @@
 static unsigned char conf[300];
 static char filename[] = "log00000.txt";
 void SD_init(void) {
-  Serial.println("SD card initializing...");
+  SerialUSB.println("SD card initializing...");
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
+
+
+void SD_read_data(void) {
+  static int filecounter = 0;
+  int j = filecounter;
+  filename[3] = j / 10000;
+  filename[3] += '0';
+  j %= 10000;
+  filename[4] = j / 1000;
+  filename[4] += '0';
+  j %= 1000;
+  filename[5] = j / 100;
+  filename[5] += '0';
+  j %= 100;
+  filename[6] = j / 10;
+  filename[6] += '0';
+  filename[7] = j % 10;
+  filename[7] += '0';
+  if (SD.exists(filename)) {
+    File readFile = SD.open(filename, FILE_READ);
+    if (readFile) {
+      for (int i = 0; readFile.available(); i++) {
+        Serial.write(readFile.read());
+      }
+      Serial.println("");
+      readFile.close();
+      filecounter++;
+    }
+    else
+      SerialUSB.println(F("SD-card read failed"));
+  }
+  else
+    SerialUSB.println(F("SD-card read failed, file does not exist."));
+}
+
+
 void SD_read(unsigned char* target, char location[12]) {
   File confFile = SD.open(location, FILE_READ);
   if (confFile) {
     for (int i = 0; confFile.available(); i++) {
       target[i] = confFile.read();
     }
-    Serial.println(F("SD-card Read"));
+    SerialUSB.println(F("SD-card Read"));
   }
   else
-    Serial.println(F("SD-card read failed"));
+    SerialUSB.println(F("SD-card read failed"));
   confFile.close();
 }
 void SD_send(unsigned char *data, unsigned long len) {
@@ -58,14 +94,14 @@ void SD_send(unsigned char *data, unsigned long len) {
     written += dataFile.println(RTC_get_seconds());
     written += dataFile.write(data, len);
     dataFile.close();
-    Serial.print(F("SD-card write success to "));
-    Serial.print(filename);
-    Serial.print(F(", \n  "));
-    Serial.print(written);
-    Serial.println(F(" bytes written"));
+    SerialUSB.print(F("SD-card write success to "));
+    SerialUSB.print(filename);
+    SerialUSB.print(F(", \n  "));
+    SerialUSB.print(written);
+    SerialUSB.println(F(" bytes written"));
   }
   else
-    Serial.println(F("SD-card write failed"));
+    SerialUSB.println(F("SD-card write failed"));
 }
 
 /* Code for converting the binary files to binary values. Saves data transfer to convert to binary before sending to satellite.
