@@ -11,19 +11,23 @@ unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
 
-static void fill_commanddata(int expected_len)
+static boolean fill_commanddata(int expected_len)
 {
   int pos = 0;
   int len = 0;
-  while (pos < expected_len) {
+  int loops = 0;
+  while (pos < expected_len && loops <1000) {
     len = Serial.available();
     if (len) {
       Serial.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
+      loops++;
     }
   }
+  return true;
 }
+
 
 void RS_init(void) {
   Serial.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
@@ -71,12 +75,10 @@ void RS_read(msp_link_t *lnk)
       if(fill_commanddata(len)){
         SerialUSB.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
         invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
-        RTC_change_timer((int) commanddata[0]);
         SerialUSB.println("--------------------------------------");
       }
       break;
     case CMD_REQ_HK:
-    {
       SerialUSB.println("CMD_HK_REQ received");
 
       // TODO: Is this really needed?
@@ -153,7 +155,8 @@ void RS_read(msp_link_t *lnk)
   }
 }
 
-void RS_send(unsigned char *sends, int len) {
+void RS_send(unsigned char *sends, int len)
+{
   DateTime CurrentTime = RTC_get();
   Serial.print("Unix time: ");
   Serial.println(CurrentTime.unixtime());
