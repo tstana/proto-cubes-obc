@@ -89,10 +89,7 @@ void RS_read(msp_link_t *lnk)
       SerialUSB.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, STRING);
       SerialUSB.println("--------------------------------------");
-      for int(i=0; i<recv_len; i+=4){
-        long hk_buf[i/4] = from_bigendian32(recv_buf[i])
-      }
-      RS_send(hk_buf, recv_len);
+      RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
     {                                                 // <<<<< TODO: Remove me!
