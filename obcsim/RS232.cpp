@@ -37,7 +37,7 @@ void RS_init(void)
 
 void RS_read(msp_link_t *lnk)
 {
-  unsigned char command = Serial.read();
+  unsigned char command = Serial2.read();
   int len;
   char s[32];
   
@@ -149,7 +149,7 @@ void RS_read(msp_link_t *lnk)
       break;
     }                                                 // <<<<< TODO: Remove me!
     default:
-      sprintf(s, "Command '%c' not recognized \n", command);
+      sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
       break;
   }
