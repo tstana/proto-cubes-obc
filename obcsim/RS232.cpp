@@ -16,6 +16,7 @@ static boolean fill_commanddata(int expected_len)
   int pos = 0;
   int len = 0;
   int loops = 0;
+  memset(commanddata, '\0', sizeof(commanddata));
   while (pos < expected_len && loops <1000) {
     len = Serial2.available();
     if (len) {
@@ -152,6 +153,7 @@ void RS_read(msp_link_t *lnk)
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
       break;
+    memset(recv_buf, '\0', sizeof(recv_len));
   }
 }
 
