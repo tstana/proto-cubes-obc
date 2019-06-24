@@ -2,7 +2,7 @@
 #include "RTC.hpp"
 
 RTC_PCF8523 rtc;
-int TIMER_REQUEST;
+int timer_request = 30;
 
 void RTC_init(void) {
   Serial.println("RTC initializing");
@@ -55,7 +55,7 @@ boolean RTC_data_request_timer(void){
   long time_now = RTC_get_seconds();
   static long timer_last = 0;
   int timer_delta = time_now-timer_last;
-  if(timer_delta > TIMER_REQUEST){
+  if(timer_delta > timer_request){
     timer_last = time_now;
     return true;
   }
@@ -63,5 +63,5 @@ boolean RTC_data_request_timer(void){
 }
 
 void RTC_change_timer(int request_timer){
-  TIMER_REQUEST = request_timer+1;
+  timer_request = request_timer+1;
 }

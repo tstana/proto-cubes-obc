@@ -10,21 +10,6 @@ void SD_init(void) {
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
 void SD_read_data(void) {
-  static int filecounter = 0;
-  int j = filecounter;
-  filename[3] = j / 10000;
-  filename[3] += '0';
-  j %= 10000;
-  filename[4] = j / 1000;
-  filename[4] += '0';
-  j %= 1000;
-  filename[5] = j / 100;
-  filename[5] += '0';
-  j %= 100;
-  filename[6] = j / 10;
-  filename[6] += '0';
-  filename[7] = j % 10;
-  filename[7] += '0';
   if (SD.exists(filename)) {
     File readFile = SD.open(filename, FILE_READ);
     if (readFile) {
@@ -33,7 +18,7 @@ void SD_read_data(void) {
       }
       Serial.println("");
       readFile.close();
-      filecounter++;
+      //filecounter++;
     }
     else
       Serial.println(F("SD-card read failed"));

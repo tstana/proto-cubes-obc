@@ -78,17 +78,15 @@ void RS_read(msp_link_t *lnk) {
     case CMD_REQ_HK:
     {
       Serial.println("CMD_HK_REQ received");
-
-      // TODO: Is this really needed?
-      // -->
-      len = Serial.available();
+      len = Serial2.available();
       if (len > 0)
-        Serial.readBytes(commanddata, len);
-      // <--
+        Serial2.readBytes(commanddata, len); /* Flush incoming data buffer */
       
       Serial.println("-------- Invoking REQ_HK -------------");
-      invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, STRING);
+      invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, BYTES);
       Serial.println("--------------------------------------");
+      Serial.print("Received HK :");
+      Serial.println(recv_len);
       RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
@@ -108,6 +106,7 @@ void RS_read(msp_link_t *lnk) {
       Serial.println(s);
       break;
   }
+    memset(recv_buf, '\0', sizeof(recv_len));
 }
 
 void RS_send(unsigned char *sends, int len) {
