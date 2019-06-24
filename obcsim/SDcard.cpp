@@ -9,6 +9,7 @@ void SD_init(void) {
   Serial.println("SD card initializing...");
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
+
 void SD_read_data(void) {
   if (SD.exists(filename)) {
     File readFile = SD.open(filename, FILE_READ);
@@ -25,6 +26,7 @@ void SD_read_data(void) {
   else
     Serial.println(F("SD-card read failed, file does not exist."));
 }
+
 
 void SD_read(unsigned char* target, char location[12]) {
   File confFile = SD.open(location, FILE_READ);
