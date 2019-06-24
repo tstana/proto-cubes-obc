@@ -14,11 +14,10 @@ void SD_read_data(void) {
     File readFile = SD.open(filename, FILE_READ);
     if (readFile) {
       for (int i = 0; readFile.available(); i++) {
-        Serial.write(readFile.read());
+        Serial2.write(readFile.read());
       }
-      Serial.println("");
+      Serial2.println("");
       readFile.close();
-      //filecounter++;
     }
     else
       Serial.println(F("SD-card read failed"));

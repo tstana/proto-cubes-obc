@@ -24,15 +24,18 @@ static unsigned long recv_len = 0;
 /* Arduino Setup */
 void setup()
 {
-  /* Create link to the experiment */
-  exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
-
-  /* Start I2C */
-  msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
-  RS_init();
+  /* Start up debug connection on programming USB port */
+  Serial.begin(115200);
   Serial.println("-------------------------");
   Serial.println(" Proto-CUBES OBC started");
   Serial.println("-------------------------");
+
+  /* Create link to the experiment & start I2C */
+  exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
+  msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
+
+  /* Init RS-232 connection, SD card and RTC */
+  RS_init();
   SD_init();
   RTC_init();
 }
@@ -48,7 +51,7 @@ void loop()
   }
 
   sequence_loop(&exp_link);
-  if (Serial.available()) {
+  if (Serial2.available()) {
     RS_read(&exp_link);
   }
   if(RTC_data_request_timer()){

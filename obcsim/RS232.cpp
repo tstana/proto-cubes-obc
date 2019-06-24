@@ -15,10 +15,11 @@ static boolean fill_commanddata(int expected_len)
   int pos = 0;
   int len = 0;
   int loops = 0;
+  memset(commanddata, '\0', sizeof(commanddata));
   while (pos < expected_len && loops <1000) {
-    len = Serial.available();
+    len = Serial2.available();
     if (len) {
-      Serial.readBytes(commanddata + pos, len);
+      Serial2.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
       loops++;
@@ -27,13 +28,16 @@ static boolean fill_commanddata(int expected_len)
   return true;
 }
 
-void RS_init(void) {
-  Serial.begin(115200); //Set 115200 Baud rate, 8 bit 1 stop no parity
-  while (!Serial);
+
+void RS_init(void)
+{
+  Serial2.begin(115200);
+  while (!Serial2);
 }
 
-void RS_read(msp_link_t *lnk) {
-  unsigned char command = Serial.read();
+void RS_read(msp_link_t *lnk)
+{
+  unsigned char command = Serial2.read();
   int len;
   char s[32] = "";
   
@@ -71,12 +75,11 @@ void RS_read(msp_link_t *lnk) {
       if(fill_commanddata(len)){
         Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
         invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
-        RTC_change_timer((int) commanddata[0]);
+       RTC_change_timer((int) commanddata[0]); /* Update timer in arduino code */ 
         Serial.println("--------------------------------------");
       }
       break;
     case CMD_REQ_HK:
-    {
       Serial.println("CMD_HK_REQ received");
       len = Serial2.available();
       if (len > 0)
@@ -90,29 +93,29 @@ void RS_read(msp_link_t *lnk) {
       RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_PAYLOAD:
-      Serial.println("CMD_REQ_PAYLOAD");
-      len = Serial.available();
+      Serial.println("CMD_REQ_PAYLOAD received");
+
+      len = Serial2.available(); /* Flush incoming data buffer */
       if (len > 0)
-        Serial.readBytes(commanddata, len); /* Clear serial buffer if any trash has been received */
+        Serial2.readBytes(commanddata, len);
       
       Serial.println("-------- Invoking REQ_PAYLOAD --------");
+      SD_read_data();
 
       Serial.println("--------------------------------------");
-      SD_read_data();
       break;
-    }
     default:
-      sprintf(s, "Command '%c' not recognized \n", command);
+      sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
       break;
   }
     memset(recv_buf, '\0', sizeof(recv_len));
 }
 
-void RS_send(unsigned char *sends, int len) {
+void RS_send(unsigned char *sends, int len){
   DateTime CurrentTime = RTC_get();
-  Serial.print("Unix time: ");
-  Serial.println(CurrentTime.unixtime());
-  Serial.write(sends, len);
-  Serial.println("");
+  Serial2.print("Unix time: ");
+  Serial2.println(CurrentTime.unixtime());
+  Serial2.write(sends, len);
+  Serial2.println("");
 }
