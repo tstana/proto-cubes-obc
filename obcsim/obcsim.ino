@@ -52,7 +52,7 @@ void loop()
     RS_read(&exp_link);
   }
   if(RTC_data_request_timer()){
-    invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, STRING);
+    invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     SD_send(recv_buf, recv_len);
   }
 }
