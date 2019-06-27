@@ -6,14 +6,7 @@
 #include "RS232.hpp"
 #include <stdlib.h>
 
-static unsigned char data_SEND_HVPS_CONF[] = "0000000000000000746900C8";
-static unsigned char data_SEND_PARAMS[] = {0x50, 0x00, 0x10, 0x22};
-static unsigned char data_SEND_CITI_CONF[143];
-static unsigned char data_SEND_PROB_CONF[32];
-static unsigned char data_seqinit2[] = {0xAA, 0x10, 0x50, 0x30};
 static char data_SEND_TIME[10] = "";
-static char conf[12] = "conf.txt";
-static char prob[12] = "probe.txt";
 
 void sequence_init(msp_link_t *lnk)
 {
