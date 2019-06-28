@@ -86,7 +86,6 @@ void RS_read(msp_link_t *lnk)
       if (len > 0)
         Serial2.readBytes(commanddata, len); /* Flush incoming data buffer */
 
-      
       Serial.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, BYTES);
       Serial.println("--------------------------------------");
@@ -106,15 +105,13 @@ void RS_read(msp_link_t *lnk)
 
       Serial.println("--------------------------------------");
       break;
-    }                                                 // <<<<< TODO: Remove me!
     default:
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
       break;
+    }
     memset(recv_buf, '\0', sizeof(recv_len));
   }
-    memset(recv_buf, '\0', sizeof(recv_len));
-}
 
 void RS_send(unsigned char *sends, int len)
 {
