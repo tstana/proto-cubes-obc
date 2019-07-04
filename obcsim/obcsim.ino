@@ -8,6 +8,7 @@
 #include "msp_obc.h"
 #include "SDcard.hpp"
 #include "obcsim_configuration.hpp"
+#include "obcsim_transactions.hpp"
 #include "RS232.hpp"
 #include "RTC.hpp"
 

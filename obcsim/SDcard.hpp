@@ -24,4 +24,6 @@ void SD_read(unsigned char* target, char location[12]);
  */
 void SD_send(unsigned char *data, unsigned long len);
 
+void SD_read_data(void);
+
 #endif
