@@ -48,7 +48,7 @@ void RS_read(msp_link_t *lnk)
       len = 143;
       if (fill_commanddata(len)) {
         Serial.println("-------- Invoking SEND_CITI_CONF -----");
-        invoke_send(lnk, MSP_OP_SEND_CITI_CONF, commanddata, len, BYTES);
+        invoke_send(lnk, MSP_OP_SEND_CUBES_CITI_CONF, commanddata, len, BYTES);
         Serial.println("--------------------------------------");
       }
       break;
@@ -57,7 +57,7 @@ void RS_read(msp_link_t *lnk)
       len = 32;
       if (fill_commanddata(len)) {
         Serial.println("-------- Invoking SEND_PROBE_CONF ----");
-        invoke_send(lnk, MSP_OP_SEND_PROBE_CONF, commanddata, len, BYTES);
+        invoke_send(lnk, MSP_OP_SEND_CUBES_PROBE_CONF, commanddata, len, BYTES);
         Serial.println("--------------------------------------");
       }
       break;
@@ -65,43 +65,45 @@ void RS_read(msp_link_t *lnk)
       Serial.println("CMD_SEND_HVPS_CONF received");
       len = 12;
       if (fill_commanddata(len)) {
-        Serial.println("-------- Invoking SEND_HVPS_CONF -----");
-        invoke_send(lnk, MSP_OP_SEND_HVPS_CONF, commanddata, len, BYTES);
+        Serial.println("---- Invoking SEND_CUBES_HVPS_CONF ---");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_CONF, commanddata, len, BYTES);
         Serial.println("--------------------------------------");
       }
       break;
-    case CMD_SEND_DAQ_DUR_AND_START:
-      Serial.println("CMD_SEND_DAQ_DUR_AND_START received");
+    case CMD_SEND_DAQ_DUR:
+      Serial.println("CMD_SEND_DAQ_DUR received");
       len = 1;
       if (fill_commanddata(len)) {
-        Serial.println("-- Invoking SEND_DAQ_DUR_AND_START ---");
-        invoke_send(lnk, MSP_OP_SEND_DAQ_DUR_AND_START, commanddata, len, BYTES);
+        Serial.println("---- Invoking SEND_CUBES_DAQ_DUR -----");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_DUR, commanddata, len, BYTES);
         RTC_change_timer((int) commanddata[0]); /* Update timer in arduino code */
         Serial.println("--------------------------------------");
       }
       break;
-    case CMD_SEND_DAQ_START:
-      Serial.println("CMD_SEND_DAQ_START received");
+    case CMD_DAQ_START:
+      Serial.println("CMD_DAQ_START received");
       daq_continous_op = 1;
       RTC_switch_timer_status(1);
-      invoke_syscommand(lnk, MSP_OP_DAQ_START);
+      Serial.println("----- Invoking CUBES_DAQ_START -------");
+      invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
+      Serial.println("--------------------------------------");
       break;
-    case CMD_SEND_DAQ_STOP:
-      Serial.println("CMD_SEND_DAQ_STOP received, delays on data might occur up to DAQ_DUR seconds");
+    case CMD_DAQ_STOP:
+      Serial.println("CMD_DAQ_STOP received, delays on data might occur up to DAQ_DUR seconds");
       daq_continous_op = 0;
       while (!RTC_data_request_timer) /* Wait for final payload data to trigger */
         ;
+      Serial.println("------- Invoking REQ_PAYLOAD ---------");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
+      Serial.println("--------------------------------------");
       RTC_switch_timer_status(0);
       SD_send(recv_buf, recv_len);
-      RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
       len = Serial2.available();
       if (len > 0)
         Serial2.readBytes(commanddata, len); /* Flush incoming data buffer */
-
 
       Serial.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, BYTES);
@@ -117,10 +119,9 @@ void RS_read(msp_link_t *lnk)
       if (len > 0)
         Serial2.readBytes(commanddata, len);
 
-      Serial.println("-------- Invoking REQ_PAYLOAD --------");
+      Serial.println("  Obtaining latest data from SD card...");
       SD_read_data();
 
-      Serial.println("--------------------------------------");
       break;
     default:
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
