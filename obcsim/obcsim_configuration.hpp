@@ -52,6 +52,12 @@
 #ifndef MSP_OP_SLEEP
 #define MSP_OP_SLEEP 0x11
 #endif
+#ifndef MSP_OP_DAQ_START
+#define MSP_OP_DAQ_START 0x53
+#endif
+#ifndef MSP_OP_DAQ_STOP
+#define MSP_OP_DAQ_STOP 0x54
+#endif
 
 /*
  * Proto-CUBES Serial Port Commands
@@ -62,6 +68,8 @@
 #define CMD_SEND_PROBE_CONF         'P'
 #define CMD_SEND_HVPS_CONF          'H'
 #define CMD_SEND_DAQ_DUR_AND_START  'D'
+#define CMD_SEND_DAQ_STOP           'S'
+#define CMD_SEND_DAQ_START          'T'
 #define CMD_REQ_HK                  'h'
 #define CMD_REQ_PAYLOAD             'p'
 

@@ -17,3 +17,5 @@ void RS_read(msp_link_t *lnk);
  *  Takes buffer array and length of buffer as input arguments.
  */
 void RS_send(unsigned char *sends, int len);
+
+boolean is_daq_on(void);
