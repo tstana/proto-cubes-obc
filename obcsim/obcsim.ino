@@ -19,7 +19,6 @@ static msp_link_t exp_link;
 static unsigned char exp_buf[EXP_MTU + 5];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
-static unsigned char still_running =0;
 
 /* Arduino Setup */
 void setup()
@@ -51,33 +50,16 @@ void loop()
   }
 
   sequence_loop(&exp_link);
+
   if (Serial2.available()) {
     RS_read(&exp_link);
   }
-  if (RTC_data_request_timer()  && is_daq_on()) {
 
-
-    Serial.println("woop-woop!");
-
-
+  if (RTC_timed_daq_enabled() && RTC_data_request_timer()) {
     Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     Serial.println("--------------------------------------");
     SD_send(recv_buf, recv_len);
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
-    still_running = 1;
-  }
-  else if(RTC_data_request_timer() && still_running == 1) {
-
-
-    Serial.println("Now this is bullcrap!");
-
-
-    Serial.println("-------- Invoking REQ_PAYLOAD --------");
-    invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-    Serial.println("--------------------------------------");
-    SD_send(recv_buf, recv_len);
-    RS_send(recv_buf, recv_len);    // TODO: Remove me - have CitirocUI send REQ_PAYLOAD instead?
-    still_running = 0;
   }
 }

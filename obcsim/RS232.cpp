@@ -9,7 +9,6 @@
 unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
-static unsigned char daq_continous_op = 0;
 
 static boolean fill_commanddata(int expected_len)
 {
@@ -82,21 +81,19 @@ void RS_read(msp_link_t *lnk)
       break;
     case CMD_DAQ_START:
       Serial.println("CMD_DAQ_START received");
-      daq_continous_op = 1;
-      RTC_switch_timer_status(1);
       Serial.println("----- Invoking CUBES_DAQ_START -------");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
       Serial.println("--------------------------------------");
+      RTC_enable_timed_daq(true);
       break;
     case CMD_DAQ_STOP:
       Serial.println("CMD_DAQ_STOP received, delays on data might occur up to DAQ_DUR seconds");
-      daq_continous_op = 0;
-      while (!RTC_data_request_timer) /* Wait for final payload data to trigger */
+      while (!RTC_data_request_timer()) /* Wait for final payload data to trigger */
         ;
       Serial.println("------- Invoking REQ_PAYLOAD ---------");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
       Serial.println("--------------------------------------");
-      RTC_switch_timer_status(0);
+      RTC_enable_timed_daq(false);
       SD_send(recv_buf, recv_len);
       break;
     case CMD_REQ_HK:
@@ -139,11 +136,4 @@ void RS_send(unsigned char *sends, int len)
   Serial2.println(CurrentTime.unixtime());
   Serial2.write(sends, len);
   Serial2.println("");
-}
-
-boolean is_daq_on(void) {
-  if (daq_continous_op == 1)
-    return true;
-  else if (daq_continous_op == 0)
-    return false;
 }

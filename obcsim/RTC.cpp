@@ -4,6 +4,7 @@
 RTC_PCF8523 rtc;
 static int timer_request = 30;
 static long timer_last = 0;
+static bool timed_daq_en = false;
 
 void RTC_init(void) {
   Serial.println("RTC initializing");
@@ -67,15 +68,26 @@ void RTC_change_timer(int request_timer) {
   timer_request = request_timer + 1;
 }
 
-void RTC_switch_timer_status(char bitflip) {
-  static char timerstatus = 0;
-  static int  currentdur = 0;
-  if (bitflip = 0 && timerstatus == 1) {
-    timer_last = 4294967295; /* Set timer_last to 2^32-1 to that it never triggers while off */
-    timerstatus = 0;
-  }
-  else if (bitflip = 1 && timerstatus == 0) {
-    timerstatus = 1;
-    timer_last = RTC_get_seconds(); /* Sets timer to start at delta = 0, so that it requests data after DAQ_DUR+1 seconds */
-  }
+void RTC_enable_timed_daq(bool enable)
+{
+  /*
+   * If timed DAQ is disabled, set timer_last to 2^32-1 to that timed DAQ never
+   * triggers while off.
+   * 
+   * If timed DAQ is enablde, set timer_last to the current time, so that data
+   * is requested from the CUBES PCB after DAQ_DUR (plus any eventual offset
+   * after it).
+   */
+  if (!enable)
+    timer_last = 4294967295;
+  else
+    timer_last = RTC_get_seconds();
+
+  /* Finally, set the local variable and exit. */
+  timed_daq_en = enable;
+}
+
+bool RTC_timed_daq_enabled()
+{
+  return timed_daq_en;
 }
