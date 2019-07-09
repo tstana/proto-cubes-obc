@@ -12,7 +12,7 @@ void SD_init(void) {
 }
 
 
-void SD_read_data(void) {
+void SD_read_last_file(void) {
   static int filecounter = 0;
   int j = filecounter;
   filename[3] = j / 10000;
@@ -29,6 +29,9 @@ void SD_read_data(void) {
   filename[7] = j % 10;
   filename[7] += '0';
   if (SD.exists(filename)) {
+    Serial.print("Reading data from ");
+    Serial.print(filename);
+    Serial.println();
     File readFile = SD.open(filename, FILE_READ);
     if (readFile) {
       for (int i = 0; readFile.available(); i++) {
@@ -58,6 +61,8 @@ void SD_read(unsigned char* target, char location[12]) {
     Serial.println(F("SD-card read failed"));
   confFile.close();
 }
+
+
 void SD_send(unsigned char *data, unsigned long len) {
   File dataFile;
   uint32_t j = 0;
@@ -85,6 +90,9 @@ void SD_send(unsigned char *data, unsigned long len) {
     filename[7] = j % 10;
     filename[7] += '0';
     if (!SD.exists(filename)) {
+      Serial.print("Writing data to file ");
+      Serial.print(filename);
+      Serial.println();
       dataFile = SD.open(filename, FILE_WRITE);
       break;
     }
