@@ -3,10 +3,10 @@
 #define SDCARD_H
 
 /*
- * SD_init
- * Initializes the SD-card functions
+ * daq_init
+ * Initializes the SD-card functions for Proto-CUBES DAQ operation.
  */
-void SD_init(void);
+void daq_init(void);
 
 /*
  * SD_read

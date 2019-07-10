@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "Arduino.h"
 #include "SDcard.hpp"
 #include <SPI.h>
@@ -6,9 +8,36 @@
 
 static unsigned char conf[300];
 static char filename[] = "daq00000.dat";
-void SD_init(void) {
+
+void daq_init(void)
+{
   Serial.println("SD card initializing...");
-  SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
+  SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
+
+  Serial.println("Attempting to get the last written file...");
+  if (SD.exists("lastfile.txt")) {
+    Serial.println("lastfile.txt found.");
+    File lastfile = SD.open("lastfile.txt", FILE_READ);
+    if (lastfile) {
+      lastfile.read(filename, 12);
+      lastfile.close();
+      char s[64];
+      sprintf(s, "Last written file name (%s) read successfully!", filename);
+      Serial.println(s);
+    } else {
+      Serial.println("Could not open lastfile.txt for reading, even though it exists!");
+    }
+  } else {
+    Serial.println("lastfile.txt not found, creating...");
+    File lastfile = SD.open("lastfile.txt", FILE_WRITE);
+    if (lastfile) {
+      lastfile.write(filename);
+      lastfile.write('\n');
+      lastfile.close();
+    } else {
+      Serial.println("Could not open lastfile.txt for writing!");
+    }
+   }
 }
 
 

@@ -33,10 +33,10 @@ void setup()
   exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
   msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
 
-  /* Init RS-232 connection, SD card and RTC */
+  /* Init RS-232 connection, RTC and Proto-CUBES DAQ */
   RS_init();
-  SD_init();
   RTC_init();
+  daq_init();
 }
 
 /* Arduino Loop */
