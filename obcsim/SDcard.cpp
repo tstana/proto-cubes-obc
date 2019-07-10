@@ -5,14 +5,14 @@
 #include "RTC.hpp"
 
 static unsigned char conf[300];
-static char filename[] = "log00000.txt";
+static char filename[] = "daq00000.dat";
 void SD_init(void) {
   Serial.println("SD card initializing...");
   SD.begin(10); //4 on ethernet shield, 10 on SD-prototype board
 }
 
 
-void SD_read_last_file(void) {
+void daq_read_last_file(void) {
   static int filecounter = 0;
   int j = filecounter;
   filename[3] = j / 10000;
@@ -63,12 +63,12 @@ void SD_read(unsigned char* target, char location[12]) {
 }
 
 
-void SD_send(unsigned char *data, unsigned long len) {
+void daq_write_new_file(unsigned char *data, unsigned long len) {
   File dataFile;
   uint32_t j = 0;
   /*
    * Create a new file every time function is called. The file name is
-   * "logNNNNN.txt", where NNNNN is from the interval [0, 99999]. The
+   * "daqNNNNN.dat", where NNNNN is from the interval [0, 99999]. The
    * code below parses this interval until a file that does not exist is
    * found, creates it, then breaks.
    * 

@@ -59,7 +59,7 @@ void loop()
     Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     Serial.println("--------------------------------------");
-    SD_send(recv_buf, recv_len);
+    daq_write_new_file(recv_buf, recv_len);
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
   }
 }

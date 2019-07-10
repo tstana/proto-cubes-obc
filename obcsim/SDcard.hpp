@@ -16,14 +16,14 @@ void SD_init(void);
 void SD_read(unsigned char* target, char location[12]);
 
 /*
- * SD_send
+ * SD_write_new_daq_file
  * Sends data from buffer to a newly generated file
  * A new file is generated every time data is sent to it, 
  * on the format logxxxxx.txt, where the x is replaced by numbers
  * Input: Data buffer location and length of buffer
  */
-void SD_send(unsigned char *data, unsigned long len);
+void daq_write_new_file(unsigned char *data, unsigned long len);
 
-void SD_read_last_file(void);
+void daq_read_last_file(void);
 
 #endif

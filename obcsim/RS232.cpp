@@ -94,7 +94,7 @@ void RS_read(msp_link_t *lnk)
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
       Serial.println("--------------------------------------");
       RTC_enable_timed_daq(false);
-      SD_send(recv_buf, recv_len);
+      daq_write_new_file(recv_buf, recv_len);
       break;
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
@@ -117,7 +117,7 @@ void RS_read(msp_link_t *lnk)
         Serial2.readBytes(commanddata, len);
 
       Serial.println("  Obtaining latest data from SD card...");
-      SD_read_last_file();
+      daq_read_last_file();
 
       break;
     default:
