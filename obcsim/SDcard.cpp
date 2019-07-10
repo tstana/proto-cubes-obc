@@ -7,10 +7,11 @@
 #include "RTC.hpp"
 
 static unsigned char conf[300];
-static char filename[] = "daq00000.dat";
 
 void daq_init(void)
 {
+  char filename[13] = "none";
+  
   Serial.println("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
 
@@ -41,57 +42,68 @@ void daq_init(void)
 }
 
 
-void daq_write_new_file(unsigned char *data, unsigned long len) {
+void daq_write_new_file(unsigned char *data, unsigned long len)
+{
+  /* Retrieve last stored file name... */
+  File lastfile = SD.open("lastfile.txt", FILE_WRITE);
+  char filename[13];
+  if (lastfile) {
+        Serial.print("1: pos = "); Serial.println(lastfile.position());
+    lastfile.seek(0);
+        Serial.print("2: pos = "); Serial.println(lastfile.position());
+    lastfile.read(filename, 12);
+  } else {
+    Serial.println("daq_write_new_file(): Could not open lastfile.txt!");
+    return;
+  }
+
+  /* ... add 1 to it, unless none exists, in which case start from 0... */
+  char s[64];
+  long int i = 0;
+  if (strcmp(filename, "none") != 0) {
+    strncpy(s, &filename[3], 5);
+    i = 1 + strtol(s, NULL, 10);
+  }
+  sprintf(filename, "daq%05d.dat", i);
+      Serial.print("3: pos = "); Serial.println(lastfile.position());
+  lastfile.seek(0);
+      Serial.print("4: pos = "); Serial.println(lastfile.position());
+  lastfile.write(filename);
+      Serial.print("5: pos = "); Serial.println(lastfile.position());
+  lastfile.flush();
+  lastfile.close();
+
+  /* ... and write! */
   File dataFile;
-  uint32_t j = 0;
-  /*
-   * Create a new file every time function is called. The file name is
-   * "daqNNNNN.dat", where NNNNN is from the interval [0, 99999]. The
-   * code below parses this interval until a file that does not exist is
-   * found, creates it, then breaks.
-   * 
-   * Adding the '0' character makes ASCII strings out of number calculations.
-   */
-  for (uint32_t i = 0; i < 100000; i++) {
-    j = i;
-    filename[3] = j / 10000;
-    filename[3] += '0';
-    j %= 10000;
-    filename[4] = j / 1000;
-    filename[4] += '0';
-    j %= 1000;
-    filename[5] = j / 100;
-    filename[5] += '0';
-    j %= 100;
-    filename[6] = j / 10;
-    filename[6] += '0';
-    filename[7] = j % 10;
-    filename[7] += '0';
-    if (!SD.exists(filename)) {
-      Serial.print("Writing data to file ");
+  if (!SD.exists(filename)) {
+    sprintf(s, "Writing data to new file %s", filename);
+    Serial.println(s);
+    dataFile = SD.open(filename, FILE_WRITE);
+    if (dataFile) {
+      int written = dataFile.print("Unix time: ");
+      written += dataFile.println(RTC_get_seconds());
+      written += dataFile.write(data, len);
+      dataFile.close();
+      Serial.print(F("SD-card write success to "));
       Serial.print(filename);
-      Serial.println();
-      dataFile = SD.open(filename, FILE_WRITE);
-      break;
+      Serial.print(F(", \n  "));
+      Serial.print(written);
+      Serial.println(F(" bytes written"));
+    } else {
+      sprintf(s, "Could not open %s for writing!", filename);
+      Serial.println(s);
     }
+  } else {
+    sprintf(s, "Could not open %s, file already exists!", filename);
+    Serial.println(s);
   }
-  if (dataFile) {
-    int written = dataFile.print("Unix time: ");
-    written += dataFile.println(RTC_get_seconds());
-    written += dataFile.write(data, len);
-    dataFile.close();
-    Serial.print(F("SD-card write success to "));
-    Serial.print(filename);
-    Serial.print(F(", \n  "));
-    Serial.print(written);
-    Serial.println(F(" bytes written"));
-  }
-  else
-    Serial.println(F("SD-card write failed"));
 }
 
 
-void daq_read_last_file(void) {
+void daq_read_last_file(void)
+{
+  char filename[13];
+  
   static int filecounter = 0;
   int j = filecounter;
   filename[3] = j / 10000;

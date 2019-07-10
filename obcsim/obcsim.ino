@@ -49,6 +49,16 @@ void loop()
     initiated = true;
   }
 
+  char data[9] = "01234567";
+  static int i = 0;
+  if (i++ < 16) {
+    Serial.print("<<"); Serial.print(i); Serial.print(">>");Serial.println();
+    daq_write_new_file((unsigned char *)data, 8);
+    delay(1000);
+  }
+
+  return;
+
   sequence_loop(&exp_link);
 
   if (Serial2.available()) {
