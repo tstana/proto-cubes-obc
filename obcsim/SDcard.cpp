@@ -145,37 +145,20 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
 }
 
 
-void daq_read_last_file(void)
+void daq_read_last_file(char *buf, int *recv_len)
 {
-  char filename[13];
-  
-  static int filecounter = 0;
-  int j = filecounter;
-  filename[3] = j / 10000;
-  filename[3] += '0';
-  j %= 10000;
-  filename[4] = j / 1000;
-  filename[4] += '0';
-  j %= 1000;
-  filename[5] = j / 100;
-  filename[5] += '0';
-  j %= 100;
-  filename[6] = j / 10;
-  filename[6] += '0';
-  filename[7] = j % 10;
-  filename[7] += '0';
-  if (SD.exists(filename)) {
+  if (SD.exists(last_file)) {
     Serial.print("Reading data from ");
-    Serial.print(filename);
+    Serial.print(last_file);
     Serial.println();
-    File readFile = SD.open(filename, FILE_READ);
+    File readFile = SD.open(last_file, FILE_READ);
     if (readFile) {
-      for (int i = 0; readFile.available(); i++) {
-        Serial2.write(readFile.read());
+      int i;
+      for (i = 0; readFile.available(); i++) {
+        buf[i] = readFile.read();
       }
-      Serial2.println("");
+      *recv_len = i;
       readFile.close();
-      filecounter++;
     }
     else
       Serial.println(F("SD-card read failed"));

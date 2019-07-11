@@ -24,6 +24,6 @@ void SD_read(unsigned char* target, char location[12]);
  */
 void daq_write_new_file(unsigned char *data, unsigned long len);
 
-void daq_read_last_file(void);
+void daq_read_last_file(char *buf, int *recv_len);
 
 #endif

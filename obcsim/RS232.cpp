@@ -117,7 +117,8 @@ void RS_read(msp_link_t *lnk)
         Serial2.readBytes(commanddata, len);
 
       Serial.println("  Obtaining latest data from SD card...");
-      daq_read_last_file();
+      daq_read_last_file((char *)recv_buf, (int *)&recv_len);
+      RS_send(recv_buf, recv_len);
 
       break;
     default:
