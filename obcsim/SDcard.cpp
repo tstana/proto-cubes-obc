@@ -8,95 +8,140 @@
 
 static unsigned char conf[300];
 
+static char last_file[13] = "daq0000.dat";
+
+/**
+ * increment_file_number()
+ * 
+ * \brief Increment the NNNN part of "daqNNNN.dat", handling overflow (9999 -> 0).
+ * 
+ * \param name  File name to apply the number to.
+ */
+static void increment_file_number(char *name)
+{
+  char s[4];
+  int n;
+
+  strncpy(s, &name[3], 4);
+  n = strtol(s, NULL, 10);
+  if (n == 9999)
+    n = 0;
+  else
+    ++n;
+
+  sprintf(name, "daq%04d.dat", n);
+}
+
+/**
+ * decrement_file_number()
+ * 
+ * \brief Decrement the NNNN part of "daqNNNN.dat", handling overflow (0 -> 9999).
+ * 
+ * \param name  File name to apply the number to.
+ */
+static void decrement_file_number(char *name)
+{
+  char s[4];
+  int n;
+
+  strncpy(s, &name[3], 4);
+  n = strtol(s, NULL, 10);
+  if (n == 0)
+    n = 9999;
+  else
+    --n;
+
+  sprintf(name, "daq%04d.dat", n);
+}
+
+
 void daq_init(void)
 {
-  char filename[13] = "none";
-  
+  char s[64];
+  int found_files = 0;
+  int num;
+
   Serial.println("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
 
   Serial.println("Attempting to get the last written file...");
-  if (SD.exists("lastfile.txt")) {
-    Serial.println("lastfile.txt found.");
-    File lastfile = SD.open("lastfile.txt", FILE_READ);
-    if (lastfile) {
-      lastfile.read(filename, 12);
-      lastfile.close();
-      char s[64];
-      sprintf(s, "Last written file name (%s) read successfully!", filename);
-      Serial.println(s);
-    } else {
-      Serial.println("Could not open lastfile.txt for reading, even though it exists!");
-    }
-  } else {
-    Serial.println("lastfile.txt not found, creating...");
-    File lastfile = SD.open("lastfile.txt", FILE_WRITE);
-    if (lastfile) {
-      lastfile.write(filename);
-      lastfile.write('\n');
-      lastfile.close();
-    } else {
-      Serial.println("Could not open lastfile.txt for writing!");
-    }
-   }
+
+  while (SD.exists(last_file)) {
+    ++found_files;
+    increment_file_number(last_file);
+  }
+
+  /*
+   * Last increment will have left us on a non-existing file name -- fix by
+   * decrementing.
+   * 
+   * This also handles the case when no files exist on the SD card, by first
+   * underflowing the file number to 9999, which should be overflowed again to 0
+   * on the first file write.
+   */
+  decrement_file_number(last_file);
+
+  if (found_files)
+  {
+    sprintf(s, "Last written file found is %s.", last_file);
+    Serial.println(s);
+  }
+  else
+  {
+    sprintf(s, "No previous DAQ files found. Starting from %s.", last_file);
+    Serial.println(s);
+  }
 }
 
 
 void daq_write_new_file(unsigned char *data, unsigned long len)
 {
-  /* Retrieve last stored file name... */
-  File lastfile = SD.open("lastfile.txt", FILE_WRITE);
-  char filename[13];
-  if (lastfile) {
-        Serial.print("1: pos = "); Serial.println(lastfile.position());
-    lastfile.seek(0);
-        Serial.print("2: pos = "); Serial.println(lastfile.position());
-    lastfile.read(filename, 12);
-  } else {
-    Serial.println("daq_write_new_file(): Could not open lastfile.txt!");
-    return;
-  }
-
-  /* ... add 1 to it, unless none exists, in which case start from 0... */
   char s[64];
-  long int i = 0;
-  if (strcmp(filename, "none") != 0) {
-    strncpy(s, &filename[3], 5);
-    i = 1 + strtol(s, NULL, 10);
-  }
-  sprintf(filename, "daq%05d.dat", i);
-      Serial.print("3: pos = "); Serial.println(lastfile.position());
-  lastfile.seek(0);
-      Serial.print("4: pos = "); Serial.println(lastfile.position());
-  lastfile.write(filename);
-      Serial.print("5: pos = "); Serial.println(lastfile.position());
-  lastfile.flush();
-  lastfile.close();
+  bool should_decrem = false;
 
-  /* ... and write! */
-  File dataFile;
-  if (!SD.exists(filename)) {
-    sprintf(s, "Writing data to new file %s", filename);
+  /*
+   * Prep the next file name and attempt writing it.
+   */
+  increment_file_number(last_file);
+
+  if (!SD.exists(last_file))
+  {
+    sprintf(s, "Writing data to new file %s...", last_file);
     Serial.println(s);
-    dataFile = SD.open(filename, FILE_WRITE);
-    if (dataFile) {
+
+    File dataFile = SD.open(last_file, FILE_WRITE);
+    if (dataFile)
+    {
       int written = dataFile.print("Unix time: ");
       written += dataFile.println(RTC_get_seconds());
       written += dataFile.write(data, len);
       dataFile.close();
       Serial.print(F("SD-card write success to "));
-      Serial.print(filename);
+      Serial.print(last_file);
       Serial.print(F(", \n  "));
       Serial.print(written);
       Serial.println(F(" bytes written"));
-    } else {
-      sprintf(s, "Could not open %s for writing!", filename);
+    }
+    else
+    {
+      should_decrem = true;
+      sprintf(s, "Could not open %s for writing!", last_file);
       Serial.println(s);
     }
-  } else {
-    sprintf(s, "Could not open %s, file already exists!", filename);
+  }
+  else
+  {
+    should_decrem = true;
+    sprintf(s, "Could not open %s, file already exists!", last_file);
     Serial.println(s);
   }
+
+  /*
+   * Something went wrong, couldn't write new file. Make sure file order is kept
+   * by decrementing file number.
+   */
+  if (should_decrem)
+    decrement_file_number(last_file);
 }
 
 
