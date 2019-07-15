@@ -112,9 +112,7 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
     File dataFile = SD.open(last_file, FILE_WRITE);
     if (dataFile)
     {
-      int written = dataFile.print("Unix time: ");
-      written += dataFile.println(RTC_get_seconds());
-      written += dataFile.write(data, len);
+      int written = dataFile.write(data, len);
       dataFile.close();
       Serial.print(F("SD-card write success to "));
       Serial.print(last_file);
