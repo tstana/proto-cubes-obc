@@ -40,6 +40,9 @@
 #ifndef MSP_OP_SEND_CUBES_DAQ_DUR
 #define MSP_OP_SEND_CUBES_DAQ_DUR 0x74
 #endif
+#ifndef MSP_OP_SEND_CUBES_HVPS_TMP_VOLT
+#define MSP_OP_SEND_CUBES_HVPS_TMP_VOLT 0x75
+#endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
 #endif
@@ -67,6 +70,7 @@
 #define CMD_SEND_CITIROC_CONF       'C'
 #define CMD_SEND_PROBE_CONF         'P'
 #define CMD_SEND_HVPS_CONF          'H'
+#define CMD_SEND_HVPS_TMP_VOLT      'V'
 #define CMD_SEND_DAQ_DUR            'D'
 #define CMD_DAQ_START               'S'
 #define CMD_DAQ_STOP                'T'

@@ -69,6 +69,15 @@ void RS_read(msp_link_t *lnk)
         Serial.println("--------------------------------------");
       }
       break;
+    case CMD_SEND_HVPS_TMP_VOLT:
+      Serial.println("CMD_SEND_HVPS_TMP_VOLT received");
+      len = 2;
+      if (fill_commanddata(len)) {
+        Serial.println("-- Invoking SEND_CUBES_HVPS_TMP_VOLT -");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_TMP_VOLT, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
+      break;
     case CMD_SEND_DAQ_DUR:
       Serial.println("CMD_SEND_DAQ_DUR received");
       len = 1;
