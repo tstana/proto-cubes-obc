@@ -166,11 +166,12 @@ void daq_read_last_file(char *buf, int *recv_len)
 }
 
 
-void SD_read(unsigned char* target, char location[12]) {
+void daq_read_file(char location[12], unsigned char *buf)
+{
   File confFile = SD.open(location, FILE_READ);
   if (confFile) {
     for (int i = 0; confFile.available(); i++) {
-      target[i] = confFile.read();
+      buf[i] = confFile.read();
     }
     Serial.println(F("SD-card Read"));
   }
