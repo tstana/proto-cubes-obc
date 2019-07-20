@@ -6,7 +6,7 @@
 
 #include "Arduino.h"
 #include "msp_obc.h"
-#include "SDcard.hpp"
+#include "daq.hpp"
 #include "obcsim_configuration.hpp"
 #include "obcsim_transactions.hpp"
 #include "RS232.hpp"

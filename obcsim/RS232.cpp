@@ -4,7 +4,7 @@
 #include "obcsim_configuration.hpp"
 #include "RTC.hpp"
 #include "RS232.hpp"
-#include "SDcard.hpp"
+#include "daq.hpp"
 
 unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
