@@ -62,7 +62,7 @@ void RS_read(msp_link_t *lnk)
       break;
     case CMD_SEND_HVPS_CONF:
       Serial.println("CMD_SEND_HVPS_CONF received");
-      len = 12;
+      len = 13;
       if (fill_commanddata(len)) {
         Serial.println("---- Invoking SEND_CUBES_HVPS_CONF ---");
         invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_CONF, commanddata, len, BYTES);
@@ -71,7 +71,7 @@ void RS_read(msp_link_t *lnk)
       break;
     case CMD_SEND_HVPS_TMP_VOLT:
       Serial.println("CMD_SEND_HVPS_TMP_VOLT received");
-      len = 2;
+      len = 3;
       if (fill_commanddata(len)) {
         Serial.println("-- Invoking SEND_CUBES_HVPS_TMP_VOLT -");
         invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_TMP_VOLT, commanddata, len, BYTES);
