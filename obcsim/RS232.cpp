@@ -134,9 +134,7 @@ void RS_read(msp_link_t *lnk)
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
       break;
-      memset(recv_buf, '\0', sizeof(recv_len));
   }
-  memset(recv_buf, '\0', sizeof(recv_len));
 }
 
 void RS_send(unsigned char *sends, int len)
