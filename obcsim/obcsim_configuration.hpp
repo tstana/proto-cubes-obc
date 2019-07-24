@@ -16,9 +16,6 @@
 #ifndef MSP_OP_ACTIVE
 #define MSP_OP_ACTIVE 0x10
 #endif
-#ifndef MSP_OP_SEND_HVPS_CONF
-#define MSP_OP_SEND_HVPS_CONF 0x71
-#endif
 #ifndef MSP_OP_REQ_PARAMS
 #define MSP_OP_REQ_PARAMS 0x60
 #endif
@@ -31,14 +28,20 @@
 #ifndef MSP_OP_REQ_HK
 #define MSP_OP_REQ_HK 0x21
 #endif
-#ifndef MSP_OP_SEND_CITI_CONF
-#define MSP_OP_SEND_CITI_CONF 0x72
+#ifndef MSP_OP_SEND_CUBES_HVPS_CONF
+#define MSP_OP_SEND_CUBES_HVPS_CONF 0x71
 #endif
-#ifndef MSP_OP_SEND_PROBE_CONF
-#define MSP_OP_SEND_PROBE_CONF 0x73
+#ifndef MSP_OP_SEND_CUBES_CITI_CONF
+#define MSP_OP_SEND_CUBES_CITI_CONF 0x72
 #endif
-#ifndef MSP_OP_SEND_DAQ_DUR_AND_START
-#define MSP_OP_SEND_DAQ_DUR_AND_START 0x74
+#ifndef MSP_OP_SEND_CUBES_PROBE_CONF
+#define MSP_OP_SEND_CUBES_PROBE_CONF 0x73
+#endif
+#ifndef MSP_OP_SEND_CUBES_DAQ_DUR
+#define MSP_OP_SEND_CUBES_DAQ_DUR 0x74
+#endif
+#ifndef MSP_OP_SEND_CUBES_HVPS_TMP_VOLT
+#define MSP_OP_SEND_CUBES_HVPS_TMP_VOLT 0x75
 #endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
@@ -52,6 +55,12 @@
 #ifndef MSP_OP_SLEEP
 #define MSP_OP_SLEEP 0x11
 #endif
+#ifndef MSP_OP_CUBES_DAQ_START
+#define MSP_OP_CUBES_DAQ_START 0x53
+#endif
+#ifndef MSP_OP_CUBES_DAQ_STOP
+#define MSP_OP_CUBES_DAQ_STOP 0x54
+#endif
 
 /*
  * Proto-CUBES Serial Port Commands
@@ -61,7 +70,10 @@
 #define CMD_SEND_CITIROC_CONF       'C'
 #define CMD_SEND_PROBE_CONF         'P'
 #define CMD_SEND_HVPS_CONF          'H'
-#define CMD_SEND_DAQ_DUR_AND_START  'D'
+#define CMD_SEND_HVPS_TMP_VOLT      'V'
+#define CMD_SEND_DAQ_DUR            'D'
+#define CMD_DAQ_START               'S'
+#define CMD_DAQ_STOP                'T'
 #define CMD_REQ_HK                  'h'
 #define CMD_REQ_PAYLOAD             'p'
 

@@ -41,3 +41,7 @@ boolean RTC_data_request_timer(void);
 */
 
 void RTC_change_timer(int request_timer);
+
+void RTC_enable_timed_daq(bool enable);
+
+bool RTC_timed_daq_enabled(void);

@@ -6,8 +6,9 @@
 
 #include "Arduino.h"
 #include "msp_obc.h"
-#include "SDcard.hpp"
+#include "daq.hpp"
 #include "obcsim_configuration.hpp"
+#include "obcsim_transactions.hpp"
 #include "RS232.hpp"
 #include "RTC.hpp"
 #include "obcsim_transactions.hpp"
@@ -34,10 +35,10 @@ void setup()
   exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
   msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
 
-  /* Init RS-232 connection, SD card and RTC */
+  /* Init RS-232 connection, RTC and Proto-CUBES DAQ */
   RS_init();
-  SD_init();
   RTC_init();
+  daq_init();
 }
 
 /* Arduino Loop */
@@ -51,11 +52,16 @@ void loop()
   }
 
   sequence_loop(&exp_link);
+
   if (Serial2.available()) {
     RS_read(&exp_link);
   }
-  // if(RTC_data_request_timer()){
-  //   invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-  //   SD_send(recv_buf, recv_len);
-  // }
+
+  if (RTC_timed_daq_enabled() && RTC_data_request_timer()) {
+    Serial.println("-------- Invoking REQ_PAYLOAD --------");
+    invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
+    Serial.println("--------------------------------------");
+    daq_write_new_file(recv_buf, recv_len);
+    invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
+  }
 }
