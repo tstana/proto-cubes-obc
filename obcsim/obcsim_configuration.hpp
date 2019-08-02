@@ -43,6 +43,9 @@
 #ifndef MSP_OP_SEND_CUBES_HVPS_TMP_VOLT
 #define MSP_OP_SEND_CUBES_HVPS_TMP_VOLT 0x75
 #endif
+#ifndef MSP_OP_SEND_READ_REG_DEBUG
+#define MSP_OP_SEND_READ_REG_DEBUG 0x76
+#endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
 #endif
@@ -69,6 +72,7 @@
  */
 #define CMD_SEND_CITIROC_CONF       'C'
 #define CMD_SEND_PROBE_CONF         'P'
+#define CMD_SEND_READ_REG_DEBUG     'R'
 #define CMD_SEND_HVPS_CONF          'H'
 #define CMD_SEND_HVPS_TMP_VOLT      'V'
 #define CMD_SEND_DAQ_DUR            'D'

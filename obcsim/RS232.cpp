@@ -60,6 +60,15 @@ void RS_read(msp_link_t *lnk)
         Serial.println("--------------------------------------");
       }
       break;
+    case CMD_SEND_READ_REG_DEBUG:
+      Serial.println("CMD_SEND_READ_REG_DEBUG received");
+      len = 1;
+      if (fill_commanddata(len)) {
+        Serial.println("---- Invoking SEND_READ_REG_DEBUG ----");
+        invoke_send(lnk, MSP_OP_SEND_READ_REG_DEBUG, commanddata, len, BYTES);
+        Serial.println("--------------------------------------");
+      }
+      break;
     case CMD_SEND_HVPS_CONF:
       Serial.println("CMD_SEND_HVPS_CONF received");
       len = 13;
