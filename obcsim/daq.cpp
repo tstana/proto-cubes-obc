@@ -181,3 +181,29 @@ void daq_read_file(char location[12], unsigned char *buf)
     Serial.println(F("SD-card read failed"));
   confFile.close();
 }
+
+
+int daq_delete_all_files(void)
+{
+  int deleted_files = 0;
+  while(SD.exists(last_file)){
+    SD.remove(last_file);
+    decrement_file_number(last_file);
+    deleted_files++;
+  }
+  File root = SD.open("/");
+  root.rewindDirectory();
+  while(true){
+    File remaining_file = root.openNextFile();
+    if(!remaining_file)
+      break;
+    String next_file = remaining_file.name();
+    remaining_file.close();
+    SD.remove(next_file);
+    deleted_files++;
+  }
+  Serial.println("All files removed from SD-card");
+  Serial.print("Starting over from ");
+  Serial.println(last_file);
+  return deleted_files;
+}

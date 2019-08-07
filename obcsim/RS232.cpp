@@ -9,6 +9,7 @@
 unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
+static const char* compilation = "Proto-CUBES OBC Version 1.0 \n Compiled " __DATE__ " at " __TIME__;
 
 static boolean fill_commanddata(int expected_len)
 {
@@ -114,6 +115,14 @@ void RS_read(msp_link_t *lnk)
       RTC_enable_timed_daq(false);
       daq_write_new_file(recv_buf, recv_len);
       break;
+    case CMD_DEL_FILES:
+    {
+      Serial.println("CMD_DEL_FILES received, file deletion in progress");
+      int deleted = daq_delete_all_files();
+      Serial.print(deleted);
+      Serial.println(" files removed.");
+      break;
+    }
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
       len = Serial2.available();

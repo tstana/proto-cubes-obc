@@ -34,4 +34,17 @@ void daq_write_new_file(unsigned char *data, unsigned long len);
  */
 void daq_read_last_file(char *buf, int *recv_len);
 
+/**
+ * daq_delete_all_files
+ * 
+ * @brief   Removes all files from the SD card, starting with counting down 
+ *          the file number and then clearing remaining files.
+ * 
+ * @param None
+ * 
+ * @return Integer with number of files deleted.
+ */
+
+int daq_delete_all_files(void);
+
 #endif
