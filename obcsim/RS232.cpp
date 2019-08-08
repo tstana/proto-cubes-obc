@@ -98,6 +98,14 @@ void RS_read(msp_link_t *lnk)
         Serial.println("--------------------------------------");
       }
       break;
+    case CMD_SEND_RESET:
+      Serial.println("CMD_SEND_RESET received");
+      len = 1;
+      if (fill_commanddata(len)) {
+        Serial.println("---- Invoking SEND_CUBES_RST ----");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_RST, commanddata, len, BYTES);
+      }
+      break;
     case CMD_DAQ_START:
       Serial.println("CMD_DAQ_START received");
       Serial.println("----- Invoking CUBES_DAQ_START -------");
@@ -116,13 +124,13 @@ void RS_read(msp_link_t *lnk)
       daq_write_new_file(recv_buf, recv_len);
       break;
     case CMD_DEL_FILES:
-    {
-      Serial.println("CMD_DEL_FILES received, file deletion in progress");
-      int deleted = daq_delete_all_files();
-      Serial.print(deleted);
-      Serial.println(" files removed.");
-      break;
-    }
+      {
+        Serial.println("CMD_DEL_FILES received, file deletion in progress");
+        int deleted = daq_delete_all_files();
+        Serial.print(deleted);
+        Serial.println(" files removed.");
+        break;
+      }
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
       len = Serial2.available();
