@@ -18,9 +18,9 @@ static boolean fill_commanddata(int expected_len)
   int loops = 0;
   memset(commanddata, '\0', sizeof(commanddata));
   while (pos < expected_len && loops < 1000) {
-    len = Serial2.available();
+    len = Serial1.available();
     if (len) {
-      Serial2.readBytes(commanddata + pos, len);
+      Serial1.readBytes(commanddata + pos, len);
       pos += len;
       len = 0;
       loops++;
@@ -32,13 +32,13 @@ static boolean fill_commanddata(int expected_len)
 
 void RS_init(void)
 {
-  Serial2.begin(115200);
-  while (!Serial2);
+  Serial1.begin(115200);
+  while (!Serial1);
 }
 
 void RS_read(msp_link_t *lnk)
 {
-  unsigned char command = Serial2.read();
+  unsigned char command = Serial1.read();
   int len;
   char s[32] = "";
 
@@ -133,9 +133,9 @@ void RS_read(msp_link_t *lnk)
       }
     case CMD_REQ_HK:
       Serial.println("CMD_HK_REQ received");
-      len = Serial2.available();
+      len = Serial1.available();
       if (len > 0)
-        Serial2.readBytes(commanddata, len); /* Flush incoming data buffer */
+        Serial1.readBytes(commanddata, len); /* Flush incoming data buffer */
 
       Serial.println("-------- Invoking REQ_HK -------------");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, BYTES);
@@ -147,9 +147,9 @@ void RS_read(msp_link_t *lnk)
     case CMD_REQ_PAYLOAD:
       Serial.println("CMD_REQ_PAYLOAD received");
 
-      len = Serial2.available(); /* Flush incoming data buffer */
+      len = Serial1.available(); /* Flush incoming data buffer */
       if (len > 0)
-        Serial2.readBytes(commanddata, len);
+        Serial1.readBytes(commanddata, len);
 
       Serial.println("  Obtaining latest data from SD card...");
       daq_read_last_file((char *)recv_buf, (int *)&recv_len);
@@ -166,8 +166,8 @@ void RS_read(msp_link_t *lnk)
 void RS_send(unsigned char *sends, int len)
 {
   DateTime CurrentTime = RTC_get();
-  Serial2.print("Unix time: ");
-  Serial2.println(CurrentTime.unixtime());
-  Serial2.write(sends, len);
-  Serial2.println("");
+  Serial1.print("Unix time: ");
+  Serial1.println(CurrentTime.unixtime());
+  Serial1.write(sends, len);
+  Serial1.println("");
 }

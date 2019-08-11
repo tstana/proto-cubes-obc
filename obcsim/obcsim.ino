@@ -53,7 +53,7 @@ void loop()
 
   sequence_loop(&exp_link);
 
-  if (Serial2.available()) {
+  if (Serial1.available()) {
     RS_read(&exp_link);
   }
 
