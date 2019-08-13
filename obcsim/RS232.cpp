@@ -98,12 +98,12 @@ void RS_read(msp_link_t *lnk)
         Serial.println("--------------------------------------");
       }
       break;
-    case CMD_SEND_RESET:
-      Serial.println("CMD_SEND_RESET received");
+    case CMD_SEND_GATEWARE_CONF:
+      Serial.println("CMD_SEND_GATEWARE_CONF received");
       len = 1;
       if (fill_commanddata(len)) {
-        Serial.println("---- Invoking SEND_CUBES_RST ----");
-        invoke_send(lnk, MSP_OP_SEND_CUBES_RST, commanddata, len, BYTES);
+        Serial.println("-- Invoking SEND_CUBES_GATEWARE_CONF ---");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_GATEWARE_CONF, commanddata, len, BYTES);
       }
       break;
     case CMD_DAQ_START:

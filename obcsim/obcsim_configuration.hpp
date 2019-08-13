@@ -46,8 +46,8 @@
 #ifndef MSP_OP_SEND_READ_REG_DEBUG
 #define MSP_OP_SEND_READ_REG_DEBUG 0x76
 #endif
-#ifndef MSP_OP_SEND_CUBES_RST
-#define MSP_OP_SEND_CUBES_RST 0x77
+#ifndef MSP_OP_SEND_CUBES_GATEWARE_CONF
+#define MSP_OP_SEND_CUBES_GATEWARE_CONF 0x77
 #endif
 #ifndef MSP_OP_REQ_PUS
 #define MSP_OP_REQ_PUS 0x22
@@ -79,7 +79,7 @@
 #define CMD_SEND_HVPS_CONF          'H'
 #define CMD_SEND_HVPS_TMP_VOLT      'V'
 #define CMD_SEND_DAQ_DUR            'D'
-#define CMD_SEND_RESET              'E'
+#define CMD_SEND_GATEWARE_CONF      'G'
 #define CMD_DAQ_START               'S'
 #define CMD_DAQ_STOP                'T'
 #define CMD_DEL_FILES               'Q'
