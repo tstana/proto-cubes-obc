@@ -83,6 +83,7 @@
 #define CMD_DAQ_START               'S'
 #define CMD_DAQ_STOP                'T'
 #define CMD_DEL_FILES               'Q'
+#define CMD_SEND_TIME               'Z'
 #define CMD_REQ_HK                  'h'
 #define CMD_REQ_PAYLOAD             'p'
 

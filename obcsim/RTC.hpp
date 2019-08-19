@@ -19,7 +19,17 @@ DateTime RTC_get(void);
  *  Can not be used for 2 timers simultaneous
  *  Non-blocking
  */
+
 boolean RTC_time_since_last(int delaytime);
+
+/**
+ * RTC_set_time
+ * Sets the time of the RTC with a provided Unix time stamp.
+ * 
+ * @param uint32_t unix time stamp value
+ * 
+ */
+void RTC_set_time(uint32_t timestamp);
 
 /*
  * RTC_get_seconds

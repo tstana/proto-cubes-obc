@@ -156,6 +156,18 @@ void RS_read(msp_link_t *lnk)
       RS_send(recv_buf, recv_len);
 
       break;
+      case CMD_SEND_TIME:
+        len = 4;
+        if(fill_commanddata(len)){
+          uint32_t timedata = from_bigendian32(commanddata);
+          Serial.print("Received unix time: ");
+          Serial.println(timedata);
+          RTC_set_time(timedata);
+          Serial.print("Now programmed: ");
+          Serial.println(RTC_get_seconds());
+          Serial.println("-------- Invoking SEND_TIME --------");
+          invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
+        }
     default:
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);

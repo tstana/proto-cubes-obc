@@ -39,6 +39,10 @@ DateTime RTC_get(void)
   return rtc.now();
 }
 
+void RTC_set_time(uint32_t timestamp){
+  rtc.adjust(DateTime(timestamp));
+}
+
 long RTC_get_seconds(void)
 {
   return (rtc.now()).unixtime();

@@ -16,10 +16,6 @@ void sequence_init(msp_link_t *lnk)
   //SD_read(data_SEND_CITI_CONF, conf);
   //SD_read(data_SEND_PROB_CONF, prob);
   Serial.println("---------------------------------\n");
-  Serial.println("-------- Invoking SEND_TIME --------");
-  ltoa(RTC_get_seconds(), data_SEND_TIME, 10);
-  invoke_send(lnk, MSP_OP_SEND_TIME, (unsigned char *) data_SEND_TIME, sizeof(data_SEND_TIME), BYTES);
-  Serial.println("------------------------------------\n");
   delay(2000);
 }
 
