@@ -26,10 +26,10 @@ static unsigned long recv_len = 0;
 void setup()
 {
   /* Start up debug connection on programming USB port */
-  Serial.begin(115200);
-  Serial.println("-------------------------");
-  Serial.println(" Proto-CUBES OBC started");
-  Serial.println("-------------------------");
+  //Serial.begin(115200);
+  //Serial.println("-------------------------");
+  //Serial.println(" Proto-CUBES OBC started");
+  //Serial.println("-------------------------");
 
   /* Create link to the experiment & start I2C */
   exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
@@ -58,9 +58,9 @@ void loop()
   }
 
   if (RTC_timed_daq_enabled() && RTC_data_request_timer()) {
-    Serial.println("-------- Invoking REQ_PAYLOAD --------");
+    //Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-    Serial.println("--------------------------------------");
+    //Serial.println("--------------------------------------");
     daq_write_new_file(recv_buf, recv_len);
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
   }

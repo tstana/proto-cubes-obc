@@ -8,28 +8,28 @@ static bool timed_daq_en = false;
 
 void RTC_init(void)
 {
-  Serial.println("RTC initializing");
+  //Serial.println("RTC initializing");
   if (!rtc.begin()) {
-    Serial.println("RTC could not be found");
+    //Serial.println("RTC could not be found");
   }
   if (!rtc.initialized()) {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     DateTime now = rtc.now();
-    Serial.print("RTC set to: ");
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(", ");
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    Serial.print("Unix time: ");
-    Serial.println(now.unixtime());
+    //Serial.print("RTC set to: ");
+    //Serial.print(now.year(), DEC);
+    //Serial.print('/');
+    //Serial.print(now.month(), DEC);
+    //Serial.print('/');
+    //Serial.print(now.day(), DEC);
+    //Serial.print(", ");
+    //Serial.print(now.hour(), DEC);
+    //Serial.print(':');
+    //Serial.print(now.minute(), DEC);
+    //Serial.print(':');
+    //Serial.print(now.second(), DEC);
+    //Serial.println();
+    //Serial.print("Unix time: ");
+    //Serial.println(now.unixtime());
     timer_last = RTC_get_seconds();
   }
 }

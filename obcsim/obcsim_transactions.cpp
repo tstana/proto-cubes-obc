@@ -29,7 +29,7 @@ void invoke_syscommand(msp_link_t *lnk, unsigned char opcode)
 	while (msp_is_active(lnk)) {
 		r = process(lnk);
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
-			Serial.println(F("(error threshold reached)"));
+			//Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
 		}
 	}
@@ -46,19 +46,19 @@ void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, uns
 	while (msp_is_active(lnk)) {
 		r = process(lnk);
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
-			Serial.println(F("(error threshold reached)"));
+			//Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
 		}
 	}
 	print_response(r, "");
 	if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		if (pstyle != NONE)
-			Serial.print(F("\nSent "));
+			//Serial.print(F("\nSent "));
 		print_data(data, len, pstyle);
 	} else if ((r.status == MSP_RESPONSE_ERROR) && (r.error_code == MSP_OBC_ERR_DATA_NOT_SENT)) {
-		Serial.println(F("OBC Send request not executed,"));
-		Serial.println(F("  possibly due to mismatching TID..."));
-		Serial.println(F("Reattempting transaction..."));
+		//Serial.println(F("OBC Send request not executed,"));
+		//Serial.println(F("  possibly due to mismatching TID..."));
+		//Serial.println(F("Reattempting transaction..."));
 		/*
 		 * TODO: The call below is susceptible to a race condition, we should
 		 * add a counter for max. number of calls...
@@ -96,18 +96,18 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 		}
 
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
-			Serial.println(F("(error threshold reached)"));
+			//Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
 		}
 	}
 	print_response(r, "");
 	if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		if (pstyle != NONE) {
-			Serial.print(F("\nSent a sequence of "));
-			Serial.print(times, DEC);
-			Serial.print(F(" bytes with value 0x"));
-			Serial.print(value, HEX);
-			Serial.println(F("."));
+			//Serial.print(F("\nSent a sequence of "));
+			//Serial.print(times, DEC);
+			//Serial.print(F(" bytes with value 0x"));
+			//Serial.print(value, HEX);
+			//Serial.println(F("."));
 		}
 	}
 }
@@ -122,19 +122,19 @@ void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_b
 	while (msp_is_active(lnk)) {
 		r = process(lnk);
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD || request_buffer_overflow) {
-			Serial.println(F("(error threshold reached)"));
+			//Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
 		}
 	}
 	print_response(r, "");
 	if (request_buffer_overflow) {
-		Serial.print(F("Buffer Overflow (Received more than "));
-		Serial.print(REQUEST_BUFFER_SIZE, DEC);
-		Serial.println(F(" bytes of data.)"));
+		//Serial.print(F("Buffer Overflow (Received more than "));
+		//Serial.print(REQUEST_BUFFER_SIZE, DEC);
+		//Serial.println(F(" bytes of data.)"));
 	} else if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		*recv_length = r.len;
 		if (pstyle != NONE)
-			Serial.print(F("\nReceived "));
+			//Serial.print(F("\nReceived "));
 		print_data(request_buffer, r.len, pstyle);
 	}
 }
@@ -179,27 +179,27 @@ static struct msp_response process(msp_link_t *lnk)
 /* A print function for printing out an MSP response */
 static void print_response(struct msp_response r, const char *msg)
 {
-	switch (r.status) {
+	/*switch (r.status) {
 	case MSP_RESPONSE_BUSY:
-		Serial.println(F("response: BUSY"));
+		//Serial.println(F("response: BUSY"));
 		break;
 	case MSP_RESPONSE_ERROR:
-		Serial.print(F("response: ERROR: "));
-		Serial.println(r.error_code, DEC);
+		//Serial.print(F("response: ERROR: "));
+		//Serial.println(r.error_code, DEC);
 		break;
 	case MSP_RESPONSE_TRANSACTION_SUCCESSFUL:
-		Serial.println(F("response: TRANSACTION SUCCESSFUL"));
+		//Serial.println(F("response: TRANSACTION SUCCESSFUL"));
 		break;
 	case MSP_RESPONSE_TRANSACTION_ABORTED:
-		Serial.println(F("response: TRANSACTION ABORTED"));
+		//Serial.println(F("response: TRANSACTION ABORTED"));
 		break;
 	case MSP_RESPONSE_OK:
-		Serial.println(F("response: OK"));
+		//Serial.println(F("response: OK"));
 		break;
-	}
+	}*/
 
-	if (msg[0])
-		Serial.println(msg);
+	//if (msg[0])
+		//Serial.println(msg);
 }
 
 
@@ -225,18 +225,18 @@ static void print_bytes(unsigned char *data, unsigned long len)
 	unsigned long i;
 	const unsigned long cols = 8;
 
-	Serial.print(F("bytes:"));
-	for (i = 0; i < len; ++i) {
+	//Serial.print(F("bytes:"));
+	/*for (i = 0; i < len; ++i) {
 		if (i % cols == 0)
-			Serial.print("\n");
+			//Serial.print("\n");
 		else
-			Serial.print(" ");
+			//Serial.print(" ");
 
 		snprintf(buf, 5, "0x%02X", data[i]);
 		buf[4] = 0;
-		Serial.print(buf);
-	}
-	Serial.print("\n");
+		//Serial.print(buf);
+	}*/
+	//Serial.print("\n");
 }
 
 static void print_bits(unsigned char *data, unsigned long len)
@@ -245,15 +245,15 @@ static void print_bits(unsigned char *data, unsigned long len)
 	unsigned long i, j;
 	const unsigned long cols = 8;
 
-	Serial.println(F("bits (most significant bit to the left):"));
+	//Serial.println(F("bits (most significant bit to the left):"));
 	for (i = 0; i < len; i += cols) {
 		// Print byte indices first
 		for (j = i; (j < i + cols) && (j < len); ++j) {
 			snprintf(buf, 11, "Byte %-5d", j);
 			buf[10] = 0;
-			Serial.print(buf);
+			//Serial.print(buf);
 		}
-		Serial.print("\n");
+		//Serial.print("\n");
 
 		// Now print the bits in each byte
 		for (j = i; (j < i + cols) && (j < len); ++j) {
@@ -267,9 +267,9 @@ static void print_bits(unsigned char *data, unsigned long len)
 			buf[8] = ' ';
 			buf[9] = ' ';
 			buf[10] = 0;
-			Serial.print(buf);
+			//Serial.print(buf);
 		}
-		Serial.print("\n");
+		//Serial.print("\n");
 	}
 }
 
@@ -279,7 +279,6 @@ static void print_string(unsigned char *data, unsigned long len)
 		len = 1;
 
 	data[len-1] = 0;
-	Serial.println(F("string:"));
-	Serial.println((char *) data);
+	//Serial.println(F("string:"));
+	//Serial.println((char *) data);
 }
-

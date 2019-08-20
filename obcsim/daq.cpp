@@ -63,10 +63,10 @@ void daq_init(void)
   int found_files = 0;
   int num;
 
-  Serial.println("SD card initializing...");
+  //Serial.println("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
 
-  Serial.println("Attempting to get the last written file...");
+  //Serial.println("Attempting to get the last written file...");
 
   while (SD.exists(last_file)) {
     ++found_files;
@@ -86,12 +86,12 @@ void daq_init(void)
   if (found_files)
   {
     sprintf(s, "Last written file found is %s.", last_file);
-    Serial.println(s);
+    //Serial.println(s);
   }
   else
   {
     sprintf(s, "No previous DAQ files found. Starting from %s.", last_file);
-    Serial.println(s);
+    //Serial.println(s);
   }
 }
 
@@ -109,31 +109,31 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
   if (!SD.exists(last_file))
   {
     sprintf(s, "Writing data to new file %s...", last_file);
-    Serial.println(s);
+    //Serial.println(s);
 
     File dataFile = SD.open(last_file, FILE_WRITE);
     if (dataFile)
     {
       int written = dataFile.write(data, len);
       dataFile.close();
-      Serial.print(F("SD-card write success to "));
-      Serial.print(last_file);
-      Serial.print(F(", \n  "));
-      Serial.print(written);
-      Serial.println(F(" bytes written"));
+      //Serial.print(F("SD-card write success to "));
+      //Serial.print(last_file);
+      //Serial.print(F(", \n  "));
+      //Serial.print(written);
+      //Serial.println(F(" bytes written"));
     }
     else
     {
       should_decrem = true;
       sprintf(s, "Could not open %s for writing!", last_file);
-      Serial.println(s);
+      //Serial.println(s);
     }
   }
   else
   {
     should_decrem = true;
     sprintf(s, "Could not open %s, file already exists!", last_file);
-    Serial.println(s);
+    //Serial.println(s);
   }
 
   /*
@@ -148,9 +148,9 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
 void daq_read_last_file(char *buf, int *recv_len)
 {
   if (SD.exists(last_file)) {
-    Serial.print("Reading data from ");
-    Serial.print(last_file);
-    Serial.println();
+    //Serial.print("Reading data from ");
+    //Serial.print(last_file);
+    //Serial.println();
     File readFile = SD.open(last_file, FILE_READ);
     if (readFile) {
       int i;
@@ -160,11 +160,11 @@ void daq_read_last_file(char *buf, int *recv_len)
       *recv_len = i;
       readFile.close();
     }
-    else
-      Serial.println(F("SD-card read failed"));
+    //else
+      //Serial.println(F("SD-card read failed"));
   }
-  else
-    Serial.println(F("SD-card read failed, file does not exist."));
+ // else
+    //Serial.println(F("SD-card read failed, file does not exist."));
 }
 
 
@@ -175,10 +175,10 @@ void daq_read_file(char location[12], unsigned char *buf)
     for (int i = 0; confFile.available(); i++) {
       buf[i] = confFile.read();
     }
-    Serial.println(F("SD-card Read"));
+    //Serial.println(F("SD-card Read"));
   }
   else
-    Serial.println(F("SD-card read failed"));
+    //Serial.println(F("SD-card read failed"));
   confFile.close();
 }
 
@@ -202,8 +202,8 @@ int daq_delete_all_files(void)
     SD.remove(next_file);
     deleted_files++;
   }
-  Serial.println("All files removed from SD-card");
-  Serial.print("Starting over from ");
-  Serial.println(last_file);
+  //Serial.println("All files removed from SD-card");
+  //Serial.print("Starting over from ");
+  //Serial.println(last_file);
   return deleted_files;
 }
