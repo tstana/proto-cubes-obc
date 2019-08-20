@@ -67,6 +67,9 @@
 #ifndef MSP_OP_CUBES_DAQ_STOP
 #define MSP_OP_CUBES_DAQ_STOP 0x54
 #endif
+#ifndef MSP_OP_REQ_CUBES_ID
+#define MSP_OP_REQ_CUBES_ID    0x61
+#endif
 
 /*
  * Proto-CUBES Serial Port Commands
@@ -86,6 +89,7 @@
 #define CMD_SEND_TIME               'Z'
 #define CMD_REQ_HK                  'h'
 #define CMD_REQ_PAYLOAD             'p'
+#define CMD_REQ_ID                  'i'
 
 /* Function prototypes */
 void sequence_init(msp_link_t *lnk);

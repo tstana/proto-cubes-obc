@@ -9,7 +9,7 @@
 unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
-static const char* compilation = "Proto-CUBES OBC Version 1.0 \n Compiled " __DATE__ " at " __TIME__;
+static const char* compilation = "OBC: " __DATE__ "," __TIME__;
 
 static boolean fill_commanddata(int expected_len)
 {
@@ -114,9 +114,9 @@ void RS_read(msp_link_t *lnk)
       RTC_enable_timed_daq(true);
       break;
     case CMD_DAQ_STOP:
-      Serial.println("CMD_DAQ_STOP received, delays on data might occur up to DAQ_DUR seconds");
-      while (!RTC_data_request_timer()) /* Wait for final payload data to trigger */
-        ;
+      Serial.println("CMD_DAQ_STOP received");
+      invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_STOP);
+      for (int i = 0; i < 1000; i++) ; /* Wait for gateware to receive command and finish */
       Serial.println("------- Invoking REQ_PAYLOAD ---------");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
       Serial.println("--------------------------------------");
@@ -156,18 +156,26 @@ void RS_read(msp_link_t *lnk)
       RS_send(recv_buf, recv_len);
 
       break;
-      case CMD_SEND_TIME:
-        len = 4;
-        if(fill_commanddata(len)){
-          uint32_t timedata = from_bigendian32(commanddata);
-          Serial.print("Received unix time: ");
-          Serial.println(timedata);
-          RTC_set_time(timedata);
-          Serial.print("Now programmed: ");
-          Serial.println(RTC_get_seconds());
-          Serial.println("-------- Invoking SEND_TIME --------");
-          invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
-        }
+    case CMD_REQ_ID:
+      Serial.println("CMD_REQ_IQ received");
+      Serial1.println(compilation);
+      invoke_request(lnk, MSP_OP_REQ_CUBES_ID, recv_buf, &recv_len, BYTES);
+      Serial1.print("CUBES: ");
+      Serial1.write(recv_buf, recv_len);
+      break;
+    case CMD_SEND_TIME:
+      len = 4;
+      if (fill_commanddata(len)) {
+        uint32_t timedata = from_bigendian32(commanddata);
+        Serial.print("Received unix time: ");
+        Serial.println(timedata);
+        RTC_set_time(timedata);
+        Serial.print("Now programmed: ");
+        Serial.println(RTC_get_seconds());
+        Serial.println("-------- Invoking SEND_TIME --------");
+        invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
+      }
+      break;
     default:
       sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
       Serial.println(s);
