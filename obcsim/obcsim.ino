@@ -14,7 +14,7 @@
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
 
-#define I2C_SPEED (400L*1000L)
+#define I2C_SPEED (100L*1000L)
 #define I2C_TIMEOUT (100L*1000L)
 
 static msp_link_t exp_link;
