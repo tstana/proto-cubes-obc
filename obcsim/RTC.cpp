@@ -68,6 +68,9 @@ boolean RTC_data_request_timer(void)
   int timer_delta = time_now - timer_last;
   if (timer_delta >= timer_request)
   {
+    Serial.print(">>>>> RTC_data_request_timer(): timer_delta = ");
+    Serial.print(timer_delta);
+    Serial.println("<<<<<");
     timer_last = time_now;
     return true;
   }
