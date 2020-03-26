@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
-#include "RTC.hpp"
+#include "rtc.hpp"
 #include "RS232.hpp"
 #include "daq.hpp"
 
@@ -94,7 +94,7 @@ void RS_read(msp_link_t *lnk)
       if (fill_commanddata(len)) {
         Serial.println("---- Invoking SEND_CUBES_DAQ_DUR -----");
         invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_DUR, commanddata, len, BYTES);
-        RTC_change_timer((int) commanddata[0]); /* Update timer in arduino code */
+        rtc_change_timer((int) commanddata[0]); /* Update timer in arduino code */
         Serial.println("--------------------------------------");
       }
       break;
@@ -111,7 +111,7 @@ void RS_read(msp_link_t *lnk)
       Serial.println("----- Invoking CUBES_DAQ_START -------");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
       Serial.println("--------------------------------------");
-      RTC_enable_timed_daq(true);
+      rtc_enable_timed_daq(true);
       break;
     case CMD_DAQ_STOP:
       Serial.println("CMD_DAQ_STOP received");
@@ -120,7 +120,7 @@ void RS_read(msp_link_t *lnk)
       Serial.println("------- Invoking REQ_PAYLOAD ---------");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
       Serial.println("--------------------------------------");
-      RTC_enable_timed_daq(false);
+      rtc_enable_timed_daq(false);
       daq_write_new_file(recv_buf, recv_len);
       break;
     case CMD_DEL_FILES:
@@ -169,9 +169,9 @@ void RS_read(msp_link_t *lnk)
         uint32_t timedata = from_bigendian32(commanddata);
         Serial.print("Received unix time: ");
         Serial.println(timedata);
-        RTC_set_time(timedata);
+        rtc_set_time(timedata);
         Serial.print("Now programmed: ");
-        Serial.println(RTC_get_seconds());
+        Serial.println(rtc_get_seconds());
         Serial.println("-------- Invoking SEND_TIME --------");
         invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
       }
@@ -185,7 +185,7 @@ void RS_read(msp_link_t *lnk)
 
 void RS_send(unsigned char *sends, int len)
 {
-  DateTime CurrentTime = RTC_get();
+  DateTime CurrentTime = rtc_get();
   Serial1.print("Unix time: ");
   Serial1.println(CurrentTime.unixtime());
   Serial1.write(sends, len);
