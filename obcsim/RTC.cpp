@@ -65,7 +65,8 @@ boolean rtc_time_since_last(int delaytime)
 boolean rtc_data_request_timeout(void)
 {
   long time_now = rtc_get_seconds();
-  int timer_delta = time_now - timer_last;
+  long timer_delta = time_now - timer_last;
+  
   if (timer_delta >= timer_request)
   {
     timer_last = time_now;
