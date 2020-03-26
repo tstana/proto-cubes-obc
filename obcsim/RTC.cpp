@@ -61,21 +61,12 @@ boolean rtc_time_since_last(int delaytime)
   return false;
 }
 
-static long timer_delta;
-
 boolean rtc_data_request_timeout(void)
 {
   long time_now = rtc_get_seconds();
+  long time_delta = time_now - timer_last;
   
-  timer_delta = time_now - timer_last;
-  
-  return (timer_delta >= timer_request) ? true : false;
-}
-
-void rtc_print_timer_delta(void)
-{
-  Serial.print(">>> timer_delta = ");
-  Serial.println(timer_delta);
+  return (time_delta >= timer_request) ? true : false;
 }
 
 void rtc_change_timer(int request_timer)
