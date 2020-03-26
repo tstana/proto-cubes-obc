@@ -68,9 +68,6 @@ boolean rtc_data_request_timeout(void)
   int timer_delta = time_now - timer_last;
   if (timer_delta >= timer_request)
   {
-    Serial.print(">>>>> rtc_data_request_timeout(): timer_delta = ");
-    Serial.print(timer_delta);
-    Serial.println("<<<<<");
     timer_last = time_now;
     return true;
   }
