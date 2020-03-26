@@ -60,6 +60,7 @@ void loop()
   if (rtc_timed_daq_enabled() && rtc_data_request_timeout()) {
 
     rtc_print_timer_delta();    // timer delta should be > DAQ_TIME + 1
+    rtc_enable_timed_daq(false);
     
     Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
@@ -68,6 +69,12 @@ void loop()
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
 
     rtc_data_request_timeout();
-    rtc_print_timer_delta();      // timer_delta should be > 0 & < 10
+    rtc_print_timer_delta();      // timer_delta should be "INF"
+
+    rtc_enable_timed_daq(true);
+
+    rtc_data_request_timeout();
+    rtc_print_timer_delta();      // timer_delta should be >= 0
+
   }
 }

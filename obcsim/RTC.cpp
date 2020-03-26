@@ -69,12 +69,7 @@ boolean rtc_data_request_timeout(void)
   
   timer_delta = time_now - timer_last;
   
-  if (timer_delta >= timer_request)
-  {
-    timer_last = time_now;
-    return true;
-  }
-  return false;
+  return (timer_delta >= timer_request) ? true : false;
 }
 
 void rtc_print_timer_delta(void)
