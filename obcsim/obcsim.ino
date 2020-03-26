@@ -58,10 +58,16 @@ void loop()
   }
 
   if (rtc_timed_daq_enabled() && rtc_data_request_timeout()) {
+
+    rtc_print_timer_delta();    // timer delta should be > DAQ_TIME + 1
+    
     Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     Serial.println("--------------------------------------");
     daq_write_new_file(recv_buf, recv_len);
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
+
+    rtc_data_request_timeout();
+    rtc_print_timer_delta();      // timer_delta should be > 0 & < 10
   }
 }

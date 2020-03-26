@@ -56,3 +56,8 @@ void rtc_change_timer(int request_timer);
 void rtc_enable_timed_daq(bool enable);
 
 bool rtc_timed_daq_enabled(void);
+
+
+
+void rtc_print_timer_delta(void);
+
