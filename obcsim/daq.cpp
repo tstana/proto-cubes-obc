@@ -10,6 +10,8 @@
 
 static unsigned char conf[300];
 
+#define LAST_FILE_STOR  "_last.txt"
+
 static char last_file[13] = "daq0000.dat";
 
 /**
@@ -60,7 +62,6 @@ static void decrement_file_number(char *name)
 void daq_init(void)
 {
   char s[64];
-  int found_files = 0;
   int num;
 
   Serial.println("SD card initializing...");
@@ -68,28 +69,12 @@ void daq_init(void)
 
   Serial.println("Attempting to get the last written file...");
 
-  while (SD.exists(last_file)) {
-    ++found_files;
-    increment_file_number(last_file);
-  }
-
-  /*
-   * Last increment will have left us on a non-existing file name -- fix by
-   * decrementing.
-   * 
-   * This also handles the case when no files exist on the SD card, by first
-   * underflowing the file number to 9999, which should be overflowed again to 0
-   * on the first file write.
-   */
-  decrement_file_number(last_file);
-
-  if (found_files)
-  {
+  if (SD.exists(LAST_FILE_STOR)) {
+    File lf = SD.open(LAST_FILE_STOR, FILE_READ);
+    lf.read(last_file, sizeof(last_file));
     sprintf(s, "Last written file found is %s.", last_file);
     Serial.println(s);
-  }
-  else
-  {
+  } else {
     sprintf(s, "No previous DAQ files found. Starting from %s.", last_file);
     Serial.println(s);
   }
@@ -121,6 +106,19 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
       Serial.print(F(", \n  "));
       Serial.print(written);
       Serial.println(F(" bytes written"));
+
+      /* 
+       * Write last file name to the dedicated file; dedicated file is created
+       * if it does not exist.
+       */
+      File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
+      if (lf) {
+        lf.write(last_file);
+        lf.close();
+      } else {
+        Serial.print("Unable to open "); Serial.print(LAST_FILE_STOR);
+          Serial.println(" for writing!");
+      }
     }
     else
     {
