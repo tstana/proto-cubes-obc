@@ -62,7 +62,6 @@ static void decrement_file_number(char *name)
 void daq_init(void)
 {
   char s[64];
-  int num;
 
   Serial.println("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
@@ -72,12 +71,37 @@ void daq_init(void)
   if (SD.exists(LAST_FILE_STOR)) {
     File lf = SD.open(LAST_FILE_STOR, FILE_READ);
     lf.read(last_file, sizeof(last_file));
+    lf.close();
+  } else {
+    Serial.print("  Note: "); Serial.print(LAST_FILE_STOR);
+      Serial.println(" does not exist... ");
+      Serial.println("  Attempting to find any files actually written to disk...");
+  }
+
+  /*
+   * In case _last.txt does not exist - or for some reason the DAQ file stored
+   * in _last.txt is wrong, try to find the last written DAQ file. First
+   * increment the file number and see if the file exists. If it does, repeat
+   * the process until the file does not exist. Finally, decrement the file
+   * number [daq_write_new_file() increments it when it enters] and write
+   * to "_last.txt".
+   */
+  increment_file_number(last_file);
+  while (SD.exists(last_file)) {
+    increment_file_number(last_file);
+  }
+  decrement_file_number(last_file);
+
+  File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
+  if (lf) {
+    lf.write(last_file);
     sprintf(s, "Last written file found is %s.", last_file);
     Serial.println(s);
   } else {
-    sprintf(s, "No previous DAQ files found. Starting from %s.", last_file);
-    Serial.println(s);
+    Serial.print("Unable to open "); Serial.print(LAST_FILE_STOR);
+      Serial.println(" for writing!");
   }
+  lf.close();
 }
 
 
@@ -114,11 +138,11 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
       File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
       if (lf) {
         lf.write(last_file);
-        lf.close();
       } else {
         Serial.print("Unable to open "); Serial.print(LAST_FILE_STOR);
           Serial.println(" for writing!");
       }
+      lf.close();
     }
     else
     {
