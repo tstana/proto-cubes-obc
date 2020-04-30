@@ -10,7 +10,6 @@ static char data_SEND_TIME[10] = "";
 
 void sequence_init(msp_link_t *lnk)
 {
-  delay(5000);
   Serial.println("-------- Invoking ACTIVE --------");
   invoke_syscommand(lnk, MSP_OP_ACTIVE);
   //SD_read(data_SEND_CITI_CONF, conf);
