@@ -157,7 +157,7 @@ void RS_read(msp_link_t *lnk)
 
       break;
     case CMD_REQ_ID:
-      Serial.println("CMD_REQ_IQ received");
+      Serial.println("CMD_REQ_ID received");
       Serial1.println(compilation);
       invoke_request(lnk, MSP_OP_REQ_CUBES_ID, recv_buf, &recv_len, BYTES);
       Serial1.print("CUBES: ");
