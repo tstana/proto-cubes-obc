@@ -10,8 +10,10 @@
 
 static unsigned char conf[300];
 
-#define LAST_FILE_STOR  "_last.txt"
+/* File name to store the last DAQ in... */
+#define LAST_FILE_FILE  "_lastfil.txt"
 
+/* ... and the local variable to refer to during operation */
 static char last_file[13] = "daq0000.dat";
 
 /**
@@ -68,23 +70,23 @@ void daq_init(void)
 
   Serial.println("Attempting to get the last written file...");
 
-  if (SD.exists(LAST_FILE_STOR)) {
-    File lf = SD.open(LAST_FILE_STOR, FILE_READ);
+  if (SD.exists(LAST_FILE_FILE)) {
+    File lf = SD.open(LAST_FILE_FILE, FILE_READ);
     lf.read(last_file, sizeof(last_file));
     lf.close();
   } else {
-    Serial.print("  Note: "); Serial.print(LAST_FILE_STOR);
+    Serial.print("  Note: "); Serial.print(LAST_FILE_FILE);
       Serial.println(" does not exist... ");
       Serial.println("  Attempting to find any files actually written to disk...");
   }
 
   /*
-   * In case _last.txt does not exist - or for some reason the DAQ file stored
-   * in _last.txt is wrong, try to find the last written DAQ file. First
-   * increment the file number and see if the file exists. If it does, repeat
-   * the process until the file does not exist. Finally, decrement the file
-   * number [daq_write_new_file() increments it when it enters] and write
-   * to "_last.txt".
+   * In case the "last file" file does not exist - or for some reason the DAQ
+   * file stored in this txt file is wrong, try to find the last written DAQ
+   * file. First increment the file number and see if the file exists. If it
+   * does, repeat the process until the file does not exist. Finally, decrement
+   * the file number [daq_write_new_file() increments it when it enters] and
+   * write to the "last file" file.
    */
   increment_file_number(last_file);
   while (SD.exists(last_file)) {
@@ -92,13 +94,13 @@ void daq_init(void)
   }
   decrement_file_number(last_file);
 
-  File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
+  File lf = SD.open(LAST_FILE_FILE, O_WRITE | O_CREAT);
   if (lf) {
     lf.write(last_file);
     sprintf(s, "Last written file found is %s.", last_file);
     Serial.println(s);
   } else {
-    Serial.print("Unable to open "); Serial.print(LAST_FILE_STOR);
+    Serial.print("Unable to open "); Serial.print(LAST_FILE_FILE);
       Serial.println(" for writing!");
   }
   lf.close();
@@ -135,11 +137,11 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
        * Write last file name to the dedicated file; dedicated file is created
        * if it does not exist.
        */
-      File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
+      File lf = SD.open(LAST_FILE_FILE, O_WRITE | O_CREAT);
       if (lf) {
         lf.write(last_file);
       } else {
-        Serial.print("Unable to open "); Serial.print(LAST_FILE_STOR);
+        Serial.print("Unable to open "); Serial.print(LAST_FILE_FILE);
           Serial.println(" for writing!");
       }
       lf.close();
