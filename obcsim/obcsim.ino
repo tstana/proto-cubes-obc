@@ -10,7 +10,7 @@
 #include "obcsim_configuration.hpp"
 #include "obcsim_transactions.hpp"
 #include "RS232.hpp"
-#include "RTC.hpp"
+#include "rtc.hpp"
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
 
@@ -37,7 +37,7 @@ void setup()
 
   /* Init RS-232 connection, RTC and Proto-CUBES DAQ */
   RS_init();
-  RTC_init();
+  rtc_init();
   daq_init();
 }
 
@@ -57,11 +57,16 @@ void loop()
     RS_read(&exp_link);
   }
 
-  if (RTC_timed_daq_enabled() && RTC_data_request_timer()) {
+  if (rtc_timed_daq_enabled() && rtc_data_request_timeout()) {
+
+    rtc_enable_timed_daq(false);
+    
     Serial.println("-------- Invoking REQ_PAYLOAD --------");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     Serial.println("--------------------------------------");
     daq_write_new_file(recv_buf, recv_len);
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
+
+    rtc_enable_timed_daq(true);
   }
 }
