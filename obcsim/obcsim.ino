@@ -51,8 +51,6 @@ void loop()
     initiated = true;
   }
 
-  sequence_loop(&exp_link);
-
   if (Serial1.available()) {
     RS_read(&exp_link);
   }
