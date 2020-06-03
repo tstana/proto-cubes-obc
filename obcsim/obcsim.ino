@@ -39,8 +39,8 @@ static void cubes_reset()
   delay(dly);
   digitalWrite(CUBES_RESET_PIN, HIGH);
 
-  Serial.println(">>> CUBES start-up delay (2 seconds)...");
-  delay(2000);
+  Serial.println(">>> CUBES start-up delay (1 second)...");
+  delay(1000);
 
   Serial.println("-------- Invoking ACTIVE --------");
   invoke_syscommand(&exp_link, MSP_OP_ACTIVE);
@@ -93,7 +93,13 @@ void loop()
    */
   if (msp_i2c_error) {
     cubes_reset();
-    rtc_enable_timed_daq(false);
+    if (rtc_timed_daq_enabled()) {
+      rtc_enable_timed_daq(false);
+      Serial.println("----- Invoking CUBES_DAQ_START -------");
+      invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
+      Serial.println("--------------------------------------");
+      rtc_enable_timed_daq(true);
+    }
     msp_i2c_error = false;
   }
 
