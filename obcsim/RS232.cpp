@@ -176,6 +176,7 @@ void RS_read(msp_link_t *lnk)
         Serial.println(rtc_get_seconds());
         Serial.println("-------- Invoking SEND_TIME --------");
         invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
+        Serial.println("------------------------------------\n");
       }
       break;
     default:

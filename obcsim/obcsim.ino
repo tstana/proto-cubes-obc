@@ -29,21 +29,34 @@ extern bool msp_i2c_error;
 static void cubes_reset()
 {
   const int dly = 100;
+  unsigned char current_time[4];
 
+  Serial.println();
+  Serial.println("***************************************");
   Serial.print(">>> Asserting CUBES reset for "); Serial.print(dly);
   /*...*/ Serial.println(" ms!");
   digitalWrite(CUBES_RESET_PIN, LOW);
   delay(dly);
   digitalWrite(CUBES_RESET_PIN, HIGH);
+
+  Serial.println(">>> CUBES start-up delay (2 seconds)...");
+  delay(2000);
+
+  Serial.println("-------- Invoking ACTIVE --------");
+  invoke_syscommand(&exp_link, MSP_OP_ACTIVE);
+  Serial.println("---------------------------------\n");
+
+  Serial.println("-------- Invoking SEND_TIME --------");
+  to_bigendian32(current_time, rtc_get_seconds());
+  invoke_send(&exp_link, MSP_OP_SEND_TIME, current_time, 4, BYTES);
+  Serial.println("------------------------------------\n");
+
+  Serial.println("***************************************");
 }
 
 /* Arduino Setup */
 void setup()
 {
-  /* Init CUBES reset pin and assert CUBES reset */
-  pinMode(CUBES_RESET_PIN, OUTPUT);
-  cubes_reset();
-
   /* Start up debug connection on programming USB port */
   Serial.begin(115200);
   Serial.println("-------------------------");
@@ -58,6 +71,10 @@ void setup()
   RS_init();
   rtc_init();
   daq_init();
+
+  /* Init CUBES reset pin and assert CUBES reset */
+  pinMode(CUBES_RESET_PIN, OUTPUT);
+  cubes_reset();
 }
 
 /* Arduino Loop */

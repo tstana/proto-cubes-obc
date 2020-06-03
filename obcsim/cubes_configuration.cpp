@@ -8,9 +8,6 @@
 
 void sequence_init(msp_link_t *lnk)
 {
-  Serial.println("-------- Invoking ACTIVE --------");
-  invoke_syscommand(lnk, MSP_OP_ACTIVE);
-  Serial.println("---------------------------------\n");
 }
 
 void sequence_loop(msp_link_t *lnk)
