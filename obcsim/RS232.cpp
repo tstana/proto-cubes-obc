@@ -42,6 +42,8 @@ void RS_read(msp_link_t *lnk)
   int len;
   char s[32] = "";
 
+  Serial.println();
+
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
       Serial.println("CMD_SEND_CITI_CONF received");
