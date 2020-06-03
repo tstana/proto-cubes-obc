@@ -111,7 +111,9 @@ void loop()
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
     Serial.println("--------------------------------------");
     daq_write_new_file(recv_buf, recv_len);
+    Serial.println("----- Invoking CUBES_DAQ_START -------");
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
+    Serial.println("--------------------------------------");
 
     rtc_enable_timed_daq(true);
   }
