@@ -21,6 +21,8 @@ static void print_bytes(unsigned char *data, unsigned long len);
 static void print_bits(unsigned char *data, unsigned long len);
 static void print_string(unsigned char *data, unsigned long len);
 
+bool msp_i2c_error = false;
+
 void invoke_syscommand(msp_link_t *lnk, unsigned char opcode)
 {
 	struct msp_response r;
@@ -31,6 +33,8 @@ void invoke_syscommand(msp_link_t *lnk, unsigned char opcode)
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
 			Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
+			if (r.error_code == MSP_OBC_ERR_I2C_ERROR)
+				msp_i2c_error = true;
 		}
 	}
 	print_response(r, "");
@@ -48,6 +52,8 @@ void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, uns
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
 			Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
+			if (r.error_code == MSP_OBC_ERR_I2C_ERROR)
+				msp_i2c_error = true;
 		}
 	}
 	print_response(r, "");
@@ -98,6 +104,8 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD) {
 			Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
+			if (r.error_code == MSP_OBC_ERR_I2C_ERROR)
+				msp_i2c_error = true;
 		}
 	}
 	print_response(r, "");
@@ -124,6 +132,8 @@ void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_b
 		if (msp_error_count(lnk) >= MSP_ERROR_THRESHOLD || request_buffer_overflow) {
 			Serial.println(F("(error threshold reached)"));
 			r = msp_abort_transaction(lnk);
+			if (r.error_code == MSP_OBC_ERR_I2C_ERROR)
+				msp_i2c_error = true;
 		}
 	}
 	print_response(r, "");

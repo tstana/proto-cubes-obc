@@ -17,14 +17,33 @@
 #define I2C_SPEED (400L*1000L)
 #define I2C_TIMEOUT (100L*1000L)
 
+#define CUBES_RESET_PIN   13
+
 static msp_link_t exp_link;
 static unsigned char exp_buf[EXP_MTU + 5];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
 static unsigned long recv_len = 0;
 
+extern bool msp_i2c_error;
+
+static void cubes_reset()
+{
+  const int dly = 100;
+
+  Serial.print(">>> Asserting CUBES reset for "); Serial.print(dly);
+  /*...*/ Serial.println(" ms!");
+  digitalWrite(CUBES_RESET_PIN, LOW);
+  delay(dly);
+  digitalWrite(CUBES_RESET_PIN, HIGH);
+}
+
 /* Arduino Setup */
 void setup()
 {
+  /* Init CUBES reset pin and assert CUBES reset */
+  pinMode(CUBES_RESET_PIN, OUTPUT);
+  cubes_reset();
+
   /* Start up debug connection on programming USB port */
   Serial.begin(115200);
   Serial.println("-------------------------");
@@ -51,10 +70,18 @@ void loop()
     initiated = true;
   }
 
+  /* Assert CUBES reset in case MSP craps out with I2C error */
+  if (msp_i2c_error) {
+    cubes_reset();
+    msp_i2c_error = false;
+  }
+
+  /* Process any incoming commands */
   if (Serial1.available()) {
     RS_read(&exp_link);
   }
 
+  /* Finally, request payload on DAQ timeout (if DAQ is running) */
   if (rtc_timed_daq_enabled() && rtc_data_request_timeout()) {
 
     rtc_enable_timed_daq(false);
