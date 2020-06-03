@@ -70,9 +70,13 @@ void loop()
     initiated = true;
   }
 
-  /* Assert CUBES reset in case MSP craps out with I2C error */
+  /*
+   * In case MSP craps out with I2C error, assert CUBES reset and stop DAQ, no
+   * point running it further if CUBES is reset...
+   */
   if (msp_i2c_error) {
     cubes_reset();
+    rtc_enable_timed_daq(false);
     msp_i2c_error = false;
   }
 
