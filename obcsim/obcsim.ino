@@ -92,6 +92,7 @@ void loop()
    * point running it further if CUBES is reset...
    */
   if (msp_i2c_error) {
+    msp_i2c_error = false;
     cubes_reset();
     if (rtc_timed_daq_enabled()) {
       rtc_enable_timed_daq(false);
@@ -100,7 +101,6 @@ void loop()
       Serial.println("--------------------------------------");
       rtc_enable_timed_daq(true);
     }
-    msp_i2c_error = false;
   }
 
   /* Process any incoming commands */
