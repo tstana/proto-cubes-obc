@@ -153,7 +153,9 @@ void RS_read(msp_link_t *lnk)
       len = Serial1.available();
       if (len > 0)
         Serial1.readBytes(commanddata, len);
-      obcsim_status = (rtc_timed_daq_enabled() ? 1 : 0);
+      obcsim_status =
+        ((daq_new_file_available() ? 1 : 0) << 1) |
+        (rtc_timed_daq_enabled() ? 1 : 0);
       RS_send(&obcsim_status, 1);
       break;
     case CMD_REQ_PAYLOAD:
