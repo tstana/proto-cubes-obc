@@ -89,6 +89,7 @@
 #define CMD_SEND_TIME               'Z'
 #define CMD_REQ_HK                  'h'
 #define CMD_REQ_PAYLOAD             'p'
+#define CMD_REQ_STATUS				's'
 #define CMD_REQ_ID                  'i'
 
 /* Function prototypes */

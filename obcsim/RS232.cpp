@@ -41,6 +41,7 @@ void RS_read(msp_link_t *lnk)
   unsigned char command = Serial1.read();
   int len;
   char s[32] = "";
+  unsigned char obcsim_status = 0x00;
 
   Serial.println();
 
@@ -145,6 +146,15 @@ void RS_read(msp_link_t *lnk)
       Serial.print("Received HK :");
       Serial.println(recv_len);
       RS_send(recv_buf, recv_len);
+      break;
+    case CMD_REQ_STATUS:
+      Serial.println("CMD_REQ_STATUS received");
+      /* Flush incoming data buffer */
+      len = Serial1.available();
+      if (len > 0)
+        Serial1.readBytes(commanddata, len);
+      obcsim_status = (rtc_timed_daq_enabled() ? 1 : 0);
+      RS_send(&obcsim_status, 1);
       break;
     case CMD_REQ_PAYLOAD:
       Serial.println("CMD_REQ_PAYLOAD received");
