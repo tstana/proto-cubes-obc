@@ -8,13 +8,14 @@
 
 #include "RTC.hpp"
 
-static unsigned char conf[300];
-
 /* File name to store the last DAQ in... */
 #define LAST_FILE_FILE  "_lastfil.txt"
 
 /* ... and the local variable to refer to during operation */
 static char last_file[13] = "daq0000.dat";
+
+/* Status flag for... */
+static bool new_file_available = false;
 
 /**
  * increment_file_number()
@@ -166,6 +167,8 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
    */
   if (should_decrem)
     decrement_file_number(last_file);
+  else
+    new_file_available = true;
 }
 
 
@@ -183,12 +186,19 @@ void daq_read_last_file(char *buf, int *recv_len)
       }
       *recv_len = i;
       readFile.close();
+      new_file_available = false;
     }
     else
       Serial.println(F("SD-card read failed"));
   }
   else
     Serial.println(F("SD-card read failed, file does not exist."));
+}
+
+
+bool daq_new_file_available()
+{
+  return new_file_available;
 }
 
 

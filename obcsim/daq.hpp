@@ -1,38 +1,64 @@
 #ifndef _DAQ_HPP_
 #define _DAQ_HPP_
 
-/*
+
+/**
  * daq_init
- * Initializes the SD-card functions for Proto-CUBES DAQ operation.
+ * 
+ * @brief Initializes the SD-card functions for Proto-CUBES DAQ operation.
  */
 void daq_init(void);
 
-/*
+
+/**
  * daq_read_file
- * Reads data from file on SD-card to target buffer
- * Inputs: File name of reading location and target buffer
+ * 
+ * @brief Read data from file on SD-card to target buffer
+ * 
+ * @param location Name of file to read from
+ * @param buf Buffer to write data into
  */
 void daq_read_file(char location[12], unsigned char *buf);
 
-/*
+
+/**
  * daq_write_new_file
- * Sends data from buffer to a newly generated file
- * A new file is generated every time data is sent to it, 
- * on the format daqXXXX.dat, where the X is replaced by numbers
- * Input: Data buffer location and length of buffer
+ * 
+ * @brief Sends data from buffer to a newly generated file on the SD card.
+ *        A new file is generated every time data is sent to it, in the format
+ * 	      daqXXXX.dat, where the X is replaced by numbers.
+ * 
+ * @param data Buffer containing the data to write to the SD card
+ * @param len Number of bytes to write to the SD card
  */
 void daq_write_new_file(unsigned char *data, unsigned long len);
+
 
 /**
  * daq_read_last_file
  * 
  * @brief Reads data from the last file on the SD card named in the format
- *        daqXXXX.dat, into the buffer passed as parameter
+ *        daqXXXX.dat, into the buffer passed as parameter. Also clears the
+ *        internal "new_file_available" boolean variable.
  * 
- * @param *buf          Data buffer to read data into
- *        *recv_len     Number of bytes read from the file
+ * @param buf          Data buffer to read data into
+ * @param recv_len     Number of bytes read from the file
  */
 void daq_read_last_file(char *buf, int *recv_len);
+
+
+/**
+ * daq_new_file_available
+ * 
+ * @brief Returns the state of the "new_file_available" variable, which
+ *        is set in daq_write_new_file() and reset in daq_read_last_file().
+ * 
+ * @param None
+ * 
+ * @return The state of the "new_file_available" variable.
+ */
+bool daq_new_file_available();
+
 
 /**
  * daq_delete_all_files
@@ -44,7 +70,7 @@ void daq_read_last_file(char *buf, int *recv_len);
  * 
  * @return Integer with number of files deleted.
  */
-
 int daq_delete_all_files(void);
+
 
 #endif
