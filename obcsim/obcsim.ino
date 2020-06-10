@@ -26,13 +26,13 @@ static unsigned long recv_len = 0;
 
 extern bool msp_i2c_error;
 
+
+/* Reset CUBES board */
 static void cubes_reset()
 {
   const int dly = 100;
   unsigned char current_time[4];
 
-  Serial.println();
-  Serial.println("***************************************");
   Serial.print(">>> Asserting CUBES reset for "); Serial.print(dly);
   /*...*/ Serial.println(" ms!");
   digitalWrite(CUBES_RESET_PIN, LOW);
@@ -49,10 +49,9 @@ static void cubes_reset()
   Serial.println("-------- Invoking SEND_TIME --------");
   to_bigendian32(current_time, rtc_get_seconds());
   invoke_send(&exp_link, MSP_OP_SEND_TIME, current_time, 4, BYTES);
-  Serial.println("------------------------------------\n");
-
-  Serial.println("***************************************");
+  Serial.println("------------------------------------");
 }
+
 
 /* Arduino Setup */
 void setup()
@@ -77,6 +76,7 @@ void setup()
   cubes_reset();
 }
 
+
 /* Arduino Loop */
 void loop()
 {
@@ -88,12 +88,21 @@ void loop()
   }
 
   /*
-   * In case MSP craps out with I2C error, assert CUBES reset and stop DAQ, no
-   * point running it further if CUBES is reset...
+   * In case MSP throws I2C error, assert CUBES reset and restart DAQ if it was
+   * running.
+   * TODO: Add comment on Arduino side of "reset"...
    */
   if (msp_i2c_error) {
     msp_i2c_error = false;
+    
+    Serial.println("***************************************");
+    Serial.println("MSP I2C error...");
+    Serial.println(">>> Re-starting Arduino I2C comms. ");
+    msp_i2c_stop();
+    msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
+
     cubes_reset();
+
     if (rtc_timed_daq_enabled()) {
       rtc_enable_timed_daq(false);
       Serial.println("----- Invoking CUBES_DAQ_START -------");
@@ -101,6 +110,8 @@ void loop()
       Serial.println("--------------------------------------");
       rtc_enable_timed_daq(true);
     }
+
+    Serial.println("***************************************");
   }
 
   /* Process any incoming commands */
