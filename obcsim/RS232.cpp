@@ -135,7 +135,7 @@ void RS_read(msp_link_t *lnk)
         break;
       }
     case CMD_REQ_HK:
-      Serial.println("CMD_HK_REQ received");
+      Serial.println("CMD_REQ_HK received");
       len = Serial1.available();
       if (len > 0)
         Serial1.readBytes(commanddata, len); /* Flush incoming data buffer */
