@@ -2,7 +2,7 @@
 #include "rtc.hpp"
 
 RTC_PCF8523 rtc;
-static int time_req_payload = 30;
+static uint8_t daq_time = 0;
 static long time_daq_start = 0;
 static bool timed_daq_en = false;
 
@@ -53,12 +53,17 @@ boolean rtc_data_request_timeout(void)
   long time_now = rtc_get_seconds();
   long time_delta = time_now - time_daq_start;
   
-  return (time_delta >= time_req_payload) ? true : false;
+  return (time_delta >= daq_time) ? true : false;
 }
 
-void rtc_change_timer(int request_timer)
+void rtc_set_daq_time(uint8_t request_timer)
 {
-  time_req_payload = request_timer + 1;
+  daq_time = request_timer + 1;
+}
+
+uint8_t rtc_get_daq_time()
+{
+  return daq_time;
 }
 
 void rtc_enable_timed_daq(bool enable)

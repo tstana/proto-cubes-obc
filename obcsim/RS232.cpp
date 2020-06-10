@@ -97,7 +97,7 @@ void RS_read(msp_link_t *lnk)
       if (fill_commanddata(len)) {
         Serial.println("---- Invoking SEND_CUBES_DAQ_DUR -----");
         invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_DUR, commanddata, len, BYTES);
-        rtc_change_timer((int) commanddata[0]); /* Update timer in arduino code */
+        rtc_set_daq_time(commanddata[0]); /* Update timer in arduino code */
         Serial.println("--------------------------------------");
       }
       break;

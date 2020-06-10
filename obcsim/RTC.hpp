@@ -46,12 +46,10 @@ long rtc_get_seconds(void);
 */
 boolean rtc_data_request_timeout(void);
 
-/*
-* rtc_change_timer
-* Changes the time target for the timer in RTC, called whenever DAQDUR is used 
-*/
 
-void rtc_change_timer(int request_timer);
+void rtc_set_daq_time(uint8_t request_timer);
+
+uint8_t rtc_get_daq_time();
 
 void rtc_enable_timed_daq(bool enable);
 

@@ -89,7 +89,8 @@ void loop()
 
   /*
    * In case MSP throws I2C error, assert CUBES reset and restart DAQ if it was
-   * running.
+   * running. The DAQ time also needs to be resent to CUBES, since the reset
+   * cleared anything already stored.
    * TODO: Add comment on Arduino side of "reset"...
    */
   if (msp_i2c_error) {
@@ -105,6 +106,10 @@ void loop()
 
     if (rtc_timed_daq_enabled()) {
       rtc_enable_timed_daq(false);
+      Serial.println("---- Invoking SEND_CUBES_DAQ_DUR -----");
+      uint8_t daq_time = rtc_get_daq_time();
+      invoke_send(&exp_link, MSP_OP_SEND_CUBES_DAQ_DUR, &daq_time, 1, BYTES);
+      Serial.println("--------------------------------------");
       Serial.println("----- Invoking CUBES_DAQ_START -------");
       invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
       Serial.println("--------------------------------------");
