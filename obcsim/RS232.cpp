@@ -45,6 +45,10 @@ void RS_read(msp_link_t *lnk)
 
   Serial.println();
 
+  Serial.print(">>> @");
+  Serial.print(rtc_get().unixtime());
+  Serial.println("...");
+
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
       Serial.println("CMD_SEND_CITI_CONF received");
@@ -153,9 +157,12 @@ void RS_read(msp_link_t *lnk)
       len = Serial1.available();
       if (len > 0)
         Serial1.readBytes(commanddata, len);
+      /* ... and reply with status */
       obcsim_status =
         ((daq_new_file_available() ? 1 : 0) << 1) |
         (rtc_timed_daq_enabled() ? 1 : 0);
+      Serial.print("  Sending obcsim_status = ");
+      Serial.println(obcsim_status);
       RS_send(&obcsim_status, 1);
       break;
     case CMD_REQ_PAYLOAD:
@@ -201,6 +208,11 @@ void RS_read(msp_link_t *lnk)
 void RS_send(unsigned char *sends, int len)
 {
   DateTime CurrentTime = rtc_get();
+  
+  Serial.print(">>> @");
+  Serial.print(rtc_get().unixtime());
+  Serial.println("  Sending data...");
+
   Serial1.print("Unix time: ");
   Serial1.println(CurrentTime.unixtime());
   Serial1.write(sends, len);
