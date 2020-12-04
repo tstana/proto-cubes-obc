@@ -37,8 +37,8 @@
 #ifndef MSP_OP_SEND_CUBES_PROBE_CONF
 #define MSP_OP_SEND_CUBES_PROBE_CONF 0x73
 #endif
-#ifndef MSP_OP_SEND_CUBES_DAQ_DUR
-#define MSP_OP_SEND_CUBES_DAQ_DUR 0x74
+#ifndef MSP_OP_SEND_CUBES_DAQ_CONF
+#define MSP_OP_SEND_CUBES_DAQ_CONF 0x74
 #endif
 #ifndef MSP_OP_SEND_CUBES_HVPS_TMP_VOLT
 #define MSP_OP_SEND_CUBES_HVPS_TMP_VOLT 0x75
@@ -62,10 +62,10 @@
 #define MSP_OP_SLEEP 0x11
 #endif
 #ifndef MSP_OP_CUBES_DAQ_START
-#define MSP_OP_CUBES_DAQ_START 0x53
+#define MSP_OP_CUBES_DAQ_START 0x51
 #endif
 #ifndef MSP_OP_CUBES_DAQ_STOP
-#define MSP_OP_CUBES_DAQ_STOP 0x54
+#define MSP_OP_CUBES_DAQ_STOP 0x52
 #endif
 #ifndef MSP_OP_REQ_CUBES_ID
 #define MSP_OP_REQ_CUBES_ID    0x61
@@ -81,7 +81,7 @@
 #define CMD_SEND_READ_REG_DEBUG     'R'
 #define CMD_SEND_HVPS_CONF          'H'
 #define CMD_SEND_HVPS_TMP_VOLT      'V'
-#define CMD_SEND_DAQ_DUR            'D'
+#define CMD_SEND_DAQ_CONF           'D'
 #define CMD_SEND_GATEWARE_CONF      'G'
 #define CMD_DAQ_START               'S'
 #define CMD_DAQ_STOP                'T'

@@ -95,12 +95,12 @@ void RS_read(msp_link_t *lnk)
         Serial.println("--------------------------------------");
       }
       break;
-    case CMD_SEND_DAQ_DUR:
-      Serial.println("CMD_SEND_DAQ_DUR received");
-      len = 1;
+    case CMD_SEND_DAQ_CONF:
+      Serial.println("CMD_SEND_DAQ_CONF received");
+      len = 2;
       if (fill_commanddata(len)) {
-        Serial.println("---- Invoking SEND_CUBES_DAQ_DUR -----");
-        invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_DUR, commanddata, len, BYTES);
+        Serial.println("---- Invoking SEND_CUBES_DAQ_CONF -----");
+        invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_CONF, commanddata, len, BYTES);
         rtc_set_daq_time(commanddata[0]); /* Update timer in arduino code */
         Serial.println("--------------------------------------");
       }
@@ -208,7 +208,7 @@ void RS_read(msp_link_t *lnk)
 void RS_send(unsigned char *sends, int len)
 {
   DateTime CurrentTime = rtc_get();
-  
+
   Serial.print(">>> @");
   Serial.print(rtc_get().unixtime());
   Serial.println("  Sending data...");
