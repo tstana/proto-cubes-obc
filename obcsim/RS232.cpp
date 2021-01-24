@@ -1,10 +1,12 @@
 #include <string.h>
-#include "Arduino.h"
+#include <Arduino.h>
+
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
 #include "rtc.hpp"
 #include "RS232.hpp"
 #include "daq.hpp"
+#include "debug.hpp"
 
 unsigned char commanddata[143];
 static unsigned char recv_buf[REQUEST_BUFFER_SIZE];
@@ -43,116 +45,103 @@ void RS_read(msp_link_t *lnk)
   char s[32] = "";
   unsigned char obcsim_status = 0x00;
 
-  Serial.println();
-
-  Serial.print(">>> @");
-  Serial.print(rtc_get().unixtime());
-  Serial.println("...");
-
   switch (command) {
     case CMD_SEND_CITIROC_CONF:
-      Serial.println("CMD_SEND_CITI_CONF received");
+      DEBUG_PRINT("CMD_SEND_CITI_CONF received");
       len = 143;
       if (fill_commanddata(len)) {
-        Serial.println("-------- Invoking SEND_CITI_CONF -----");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_CITI_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_CITI_CONF, commanddata, len, BYTES);
-        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_PROBE_CONF:
-      Serial.println("CMD_SEND_PROBE_CONF received");
+      DEBUG_PRINT("CMD_SEND_PROBE_CONF received");
       len = 32;
       if (fill_commanddata(len)) {
-        Serial.println("-------- Invoking SEND_PROBE_CONF ----");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_PROBE_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_PROBE_CONF, commanddata, len, BYTES);
-        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_READ_REG_DEBUG:
-      Serial.println("CMD_SEND_READ_REG_DEBUG received");
+      DEBUG_PRINT("CMD_SEND_READ_REG_DEBUG received");
       len = 1;
       if (fill_commanddata(len)) {
-        Serial.println("---- Invoking SEND_READ_REG_DEBUG ----");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_READ_REG_DEBUG");
         invoke_send(lnk, MSP_OP_SEND_READ_REG_DEBUG, commanddata, len, BYTES);
-        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_HVPS_CONF:
-      Serial.println("CMD_SEND_HVPS_CONF received");
+      DEBUG_PRINT("CMD_SEND_HVPS_CONF received");
       len = 13;
       if (fill_commanddata(len)) {
-        Serial.println("---- Invoking SEND_CUBES_HVPS_CONF ---");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_HVPS_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_CONF, commanddata, len, BYTES);
-        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_HVPS_TMP_VOLT:
-      Serial.println("CMD_SEND_HVPS_TMP_VOLT received");
+      DEBUG_PRINT("CMD_SEND_HVPS_TMP_VOLT received");
       len = 3;
       if (fill_commanddata(len)) {
-        Serial.println("-- Invoking SEND_CUBES_HVPS_TMP_VOLT -");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_HVPS_TMP_VOLT");
         invoke_send(lnk, MSP_OP_SEND_CUBES_HVPS_TMP_VOLT, commanddata, len, BYTES);
-        Serial.println("--------------------------------------");
       }
       break;
     case CMD_SEND_DAQ_CONF:
-      Serial.println("CMD_SEND_DAQ_CONF received");
+      DEBUG_PRINT("CMD_SEND_DAQ_CONF received");
       len = 2;
       if (fill_commanddata(len)) {
-        Serial.println("---- Invoking SEND_CUBES_DAQ_CONF -----");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_DAQ_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_CONF, commanddata, len, BYTES);
-        rtc_set_daq_time(commanddata[0]); /* Update timer in arduino code */
-        Serial.println("--------------------------------------");
+        rtc_set_daq_time(commanddata[0]);
       }
       break;
     case CMD_SEND_GATEWARE_CONF:
-      Serial.println("CMD_SEND_GATEWARE_CONF received");
+      DEBUG_PRINT("CMD_SEND_GATEWARE_CONF received");
       len = 1;
       if (fill_commanddata(len)) {
-        Serial.println("-- Invoking SEND_CUBES_GATEWARE_CONF ---");
+        DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_GATEWARE_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_GATEWARE_CONF, commanddata, len, BYTES);
       }
       break;
     case CMD_DAQ_START:
-      Serial.println("CMD_DAQ_START received");
-      Serial.println("----- Invoking CUBES_DAQ_START -------");
+      DEBUG_PRINT("CMD_DAQ_START received");
+      DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
-      Serial.println("--------------------------------------");
       rtc_enable_timed_daq(true);
       break;
     case CMD_DAQ_STOP:
-      Serial.println("CMD_DAQ_STOP received");
+      DEBUG_PRINT("CMD_DAQ_STOP received");
+      DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_STOP");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_STOP);
       for (int i = 0; i < 1000; i++) ; /* Wait for gateware to receive command and finish */
-      Serial.println("------- Invoking REQ_PAYLOAD ---------");
+      DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-      Serial.println("--------------------------------------");
       rtc_enable_timed_daq(false);
       daq_write_new_file(recv_buf, recv_len);
       break;
     case CMD_DEL_FILES:
       {
-        Serial.println("CMD_DEL_FILES received, file deletion in progress");
-        int deleted = daq_delete_all_files();
-        Serial.print(deleted);
-        Serial.println(" files removed.");
+        DEBUG_PRINT("CMD_DEL_FILES received");
+        DEBUG_PRINT("Deleting ALL files on SD card...");
+        int num_deleted = daq_delete_all_files();
+        sprintf(s, "Done; %d files removed", num_deleted);
+        DEBUG_PRINT(s);
         break;
       }
     case CMD_REQ_HK:
-      Serial.println("CMD_REQ_HK received");
+      DEBUG_PRINT("CMD_REQ_HK received");
       len = Serial1.available();
       if (len > 0)
         Serial1.readBytes(commanddata, len); /* Flush incoming data buffer */
 
-      Serial.println("-------- Invoking REQ_HK -------------");
+      DEBUG_PRINT("Invoking MSP_OP_REQ_HK");
       invoke_request(lnk, MSP_OP_REQ_HK, recv_buf, &recv_len, BYTES);
-      Serial.println("--------------------------------------");
-      Serial.print("Received HK :");
-      Serial.println(recv_len);
+      sprintf(s, "Received HK, %d bytes", recv_len);
+      DEBUG_PRINT("Received HK :");
       RS_send(recv_buf, recv_len);
       break;
     case CMD_REQ_STATUS:
-      Serial.println("CMD_REQ_STATUS received");
+      DEBUG_PRINT("CMD_REQ_STATUS received");
       /* Flush incoming data buffer */
       len = Serial1.available();
       if (len > 0)
@@ -161,46 +150,47 @@ void RS_read(msp_link_t *lnk)
       obcsim_status =
         ((daq_new_file_available() ? 1 : 0) << 1) |
         (rtc_timed_daq_enabled() ? 1 : 0);
-      Serial.print("  Sending obcsim_status = ");
-      Serial.println(obcsim_status);
+      sprintf(s, "Sending obcsim_status %d", obcsim_status);
       RS_send(&obcsim_status, 1);
       break;
     case CMD_REQ_PAYLOAD:
-      Serial.println("CMD_REQ_PAYLOAD received");
+      DEBUG_PRINT("CMD_REQ_PAYLOAD received");
 
       len = Serial1.available(); /* Flush incoming data buffer */
       if (len > 0)
         Serial1.readBytes(commanddata, len);
 
-      Serial.println("  Obtaining latest data from SD card...");
+      DEBUG_PRINT("Obtaining latest data from SD card");
       daq_read_last_file((char *)recv_buf, (int *)&recv_len);
       RS_send(recv_buf, recv_len);
 
       break;
     case CMD_REQ_ID:
-      Serial.println("CMD_REQ_ID received");
+      DEBUG_PRINT("CMD_REQ_ID received");
       Serial1.println(compilation);
+      DEBUG_PRINT("Invoking MSP_OP_REQ_CUBES_ID");
       invoke_request(lnk, MSP_OP_REQ_CUBES_ID, recv_buf, &recv_len, BYTES);
       Serial1.print("CUBES: ");
       Serial1.write(recv_buf, recv_len);
       break;
     case CMD_SEND_TIME:
+      DEBUG_PRINT("CMD_SEND_TIME received");
       len = 4;
       if (fill_commanddata(len)) {
         uint32_t timedata = from_bigendian32(commanddata);
-        Serial.print("Received unix time: ");
-        Serial.println(timedata);
+        sprintf(s, "Attempting to program to RTC received Unix time %d", timedata);
+        DEBUG_PRINT(s);
         rtc_set_time(timedata);
-        Serial.print("Now programmed: ");
-        Serial.println(rtc_get_seconds());
-        Serial.println("-------- Invoking SEND_TIME --------");
+        sprintf(s, "RTC time after programming is %d", rtc_get_seconds());
+        DEBUG_PRINT(s);
+        DEBUG_PRINT("Invoking MSP_OP_SEND_TIME");
         invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
-        Serial.println("------------------------------------\n");
       }
       break;
     default:
-      sprintf(s, "Command '%c' (0x%02X) not recognized \n", command, command);
-      Serial.println(s);
+      sprintf(s, "Command '%c' (0x%02X) not recognized \n",
+          command, command);
+      DEBUG_PRINT(s);
       break;
   }
 }
@@ -209,9 +199,7 @@ void RS_send(unsigned char *sends, int len)
 {
   DateTime CurrentTime = rtc_get();
 
-  Serial.print(">>> @");
-  Serial.print(rtc_get().unixtime());
-  Serial.println("  Sending data...");
+  DEBUG_PRINT("Sending REQ'd data");
 
   Serial1.print("Unix time: ");
   Serial1.println(CurrentTime.unixtime());

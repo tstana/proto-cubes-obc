@@ -1,5 +1,8 @@
 #include <RTClib.h>
+#include <string.h>
+
 #include "rtc.hpp"
+#include "debug.hpp"
 
 RTC_PCF8523 rtc;
 static uint8_t daq_time = 0;
@@ -8,28 +11,20 @@ static bool timed_daq_en = false;
 
 void rtc_init(void)
 {
-  Serial.println("RTC initializing");
+  char s[32];
+  DEBUG_PRINT("RTC initializing");
   if (!rtc.begin()) {
     Serial.println("RTC could not be found");
   }
   if (!rtc.initialized()) {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     DateTime now = rtc.now();
-    Serial.print("RTC set to: ");
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(", ");
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    Serial.print("Unix time: ");
-    Serial.println(now.unixtime());
+    sprintf(s, "RTC set to %d/%d/%d, %02d:%02d:%02d",
+        now.year(), now.month(), now.day(),
+        now.hour(), now.minute(), now.second());
+    DEBUG_PRINT(s);
+    sprintf(s, "Unix time is now %d", now.unixtime());
+    DEBUG_PRINT(s);
     time_daq_start = rtc_get_seconds();
   }
 }

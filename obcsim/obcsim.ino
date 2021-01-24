@@ -4,8 +4,11 @@
    Main file for the OBC simulator.
 */
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <arduino-timer.h>
+
 #include "msp_obc.h"
+#include "debug.hpp"
 #include "daq.hpp"
 #include "obcsim_configuration.hpp"
 #include "obcsim_transactions.hpp"
@@ -14,12 +17,12 @@
 #include "obcsim_transactions.hpp"
 #include "obcsim_configuration.hpp"
 
-#include <arduino-timer.h>
 
 #define I2C_SPEED (400L*1000L)
 #define I2C_TIMEOUT (100L*1000L)
 
 #define CUBES_RESET_PIN   13
+
 
 static msp_link_t exp_link;
 static unsigned char exp_buf[EXP_MTU + 5];
@@ -28,20 +31,16 @@ static unsigned long recv_len = 0;
 
 extern bool msp_i2c_error;
 
+
 /* Send Unix time readout to CUBES */
-static bool cubes_send_time_from_rtc(void*)
+static bool cubes_send_rtc_time(void*)
 {
   unsigned char current_time[4];
 
-    Serial.print(">>> @");
-    Serial.println(rtc_get_seconds());
-
-  Serial.println();
-  Serial.println("Setting CUBES UTC time...");
-  Serial.println("-------- Invoking SEND_TIME --------");
+  DEBUG_PRINT("Syncing CUBES UTC time");
+  DEBUG_PRINT("Invoking MSP_OP_SEND_TIME");
   to_bigendian32(current_time, rtc_get_seconds());
   invoke_send(&exp_link, MSP_OP_SEND_TIME, current_time, 4, BYTES);
-  Serial.println("------------------------------------");
 
   return true;
 }
@@ -57,10 +56,8 @@ static uintptr_t sync_task;
 //  (2) Remove "sync_task" variable.
 static void cubes_sync_start()
 {
-  Serial.println();
-  Serial.print("Starting CUBES sync task at 30-second interval.");
-  Serial.println();
-  sync_task = sync_timer.every(30000, cubes_send_time_from_rtc);
+  DEBUG_PRINT("Starting CUBES sync task at 30-second interval.");
+  sync_task = sync_timer.every(30000, cubes_send_rtc_time);
 }
 
 // TODO: Remove this func.?
@@ -72,9 +69,7 @@ static void cubes_sync_tick()
 // TODO: Remove this func.?
 static void cubes_sync_stop()
 {
-  Serial.println();
-  Serial.println("Stopping CUBES sync task.");
-  Serial.println();
+  DEBUG_PRINT("Stopping CUBES sync task.");
   sync_timer.cancel(sync_task);
 }
 
@@ -83,20 +78,21 @@ static void cubes_reset()
 {
   const int dly = 100;
 
-  Serial.print(">>> Asserting CUBES reset for "); Serial.print(dly);
-  /*...*/ Serial.println(" ms!");
+  char s[32];
+
+  sprintf(s, "Asserting CUBES reset for %d ms", dly);
+  DEBUG_PRINT(s);
   digitalWrite(CUBES_RESET_PIN, LOW);
   delay(dly);
   digitalWrite(CUBES_RESET_PIN, HIGH);
 
-  Serial.println(">>> CUBES start-up delay (1 second)...");
+  DEBUG_PRINT("Initiating CUBES start-up delay, 1 second");
   delay(1000);
 
-  Serial.println("-------- Invoking ACTIVE --------");
+  DEBUG_PRINT("Invoking ACTIVE (MSP)");
   invoke_syscommand(&exp_link, MSP_OP_ACTIVE);
-  Serial.println("---------------------------------\n");
 
-  cubes_send_time_from_rtc(NULL);
+  cubes_send_rtc_time(NULL);
 }
 
 
@@ -104,10 +100,9 @@ static void cubes_reset()
 void setup()
 {
   /* Start up debug connection on programming USB port */
-  Serial.begin(115200);
-  Serial.println("-------------------------");
-  Serial.println(" Proto-CUBES OBC started");
-  Serial.println("-------------------------");
+  debug_init();
+
+  DEBUG_PRINT("Proto-CUBES OBC started");
 
   /* Create link to the experiment & start I2C */
   exp_link = msp_create_link(EXP_ADDR, msp_seqflags_init(), exp_buf, EXP_MTU);
@@ -141,12 +136,9 @@ void loop()
   if (msp_i2c_error) {
     msp_i2c_error = false;
     
-    Serial.println("***************************************");
-    Serial.println("MSP I2C error...");
-    Serial.println(">>> Re-starting Arduino I2C comms. ");
+    DEBUG_PRINT("MSP I2C error, re-starting Arduino I2C comms");
     msp_i2c_stop();
     msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
-    Serial.println("***************************************");
   }
 
   /* Tick CUBES sync timer */
@@ -164,25 +156,15 @@ void loop()
     //cubes_sync_stop();
     rtc_enable_timed_daq(false);
     
-    DateTime CurrentTime = rtc_get();
-    Serial.print(">>> @");
-    Serial.println(rtc_get().unixtime());
-
     /* Request new histogram data and write it to SD card */
-    Serial.println("-------- Invoking REQ_PAYLOAD --------");
+    DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
     invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-    Serial.println("--------------------------------------");
 
     daq_write_new_file(recv_buf, recv_len);
     
-    CurrentTime = rtc_get();
-    Serial.print(">>> @");
-    Serial.println(rtc_get().unixtime());
-    
     /* Re-start DAQ */
-    Serial.println("----- Invoking CUBES_DAQ_START -------");
+    DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
-    Serial.println("--------------------------------------");
 
     rtc_enable_timed_daq(true);
     //cubes_sync_start();

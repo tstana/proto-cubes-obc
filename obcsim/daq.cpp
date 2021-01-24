@@ -1,15 +1,16 @@
-#include "daq.hpp"
-
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include <string.h>
 #include <SPI.h>
 #include <SD.h>
 
+#include "daq.hpp"
 #include "RTC.hpp"
 
-/* File name to store the last DAQ in... */
-#define LAST_FILE_FILE  "_lastfil.txt"
+#include "debug.hpp"
+
+/* File name to store the last written DAQ file in... */
+#define LAST_FILE_STOR  "_lastfil.txt"
 
 /* ... and the local variable to refer to during operation */
 static char last_file[13] = "daq0000.dat";
@@ -64,21 +65,21 @@ static void decrement_file_number(char *name)
 
 void daq_init(void)
 {
-  char s[64];
+  char s[32];
 
-  Serial.println("SD card initializing...");
+  DEBUG_PRINT("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
 
-  Serial.println("Attempting to get the last written file...");
+  DEBUG_PRINT("Attempting to get the last written file...");
 
-  if (SD.exists(LAST_FILE_FILE)) {
-    File lf = SD.open(LAST_FILE_FILE, FILE_READ);
+  if (SD.exists(LAST_FILE_STOR)) {
+    File lf = SD.open(LAST_FILE_STOR, FILE_READ);
     lf.read(last_file, sizeof(last_file));
     lf.close();
   } else {
-    Serial.print("  Note: "); Serial.print(LAST_FILE_FILE);
-      Serial.println(" does not exist... ");
-      Serial.println("  Attempting to find any files actually written to disk...");
+    sprintf(s, "Could not find a last file named %s", LAST_FILE_STOR);
+    DEBUG_PRINT(s);
+    DEBUG_PRINT("Attempting to find any files actually written to disk...");
   }
 
   /*
@@ -95,14 +96,14 @@ void daq_init(void)
   }
   decrement_file_number(last_file);
 
-  File lf = SD.open(LAST_FILE_FILE, O_WRITE | O_CREAT);
+  File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
   if (lf) {
     lf.write(last_file);
-    sprintf(s, "Last written file found is %s.", last_file);
-    Serial.println(s);
+    sprintf(s, "Found last written file %s", last_file);
+    DEBUG_PRINT(s);
   } else {
-    Serial.print("Unable to open "); Serial.print(LAST_FILE_FILE);
-      Serial.println(" for writing!");
+    sprintf(s, "Unable to open %s for writing", LAST_FILE_STOR);
+    DEBUG_PRINT(s);
   }
   lf.close();
 }
@@ -110,7 +111,7 @@ void daq_init(void)
 
 void daq_write_new_file(unsigned char *data, unsigned long len)
 {
-  char s[64];
+  char s[32];
   bool should_decrem = false;
 
   /*
@@ -121,29 +122,27 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
   if (!SD.exists(last_file))
   {
     sprintf(s, "Writing data to new file %s...", last_file);
-    Serial.println(s);
+    DEBUG_PRINT(s);
 
     File dataFile = SD.open(last_file, FILE_WRITE);
     if (dataFile)
     {
       int written = dataFile.write(data, len);
       dataFile.close();
-      Serial.print(F("SD-card write success to "));
-      Serial.print(last_file);
-      Serial.print(F(", \n  "));
-      Serial.print(written);
-      Serial.println(F(" bytes written"));
+      sprintf(s, "SD-card write success to %s, %d bytes written",
+        last_file, written);
+      DEBUG_PRINT(s);
 
       /* 
        * Write last file name to the dedicated file; dedicated file is created
        * if it does not exist.
        */
-      File lf = SD.open(LAST_FILE_FILE, O_WRITE | O_CREAT);
+      File lf = SD.open(LAST_FILE_STOR, O_WRITE | O_CREAT);
       if (lf) {
         lf.write(last_file);
       } else {
-        Serial.print("Unable to open "); Serial.print(LAST_FILE_FILE);
-          Serial.println(" for writing!");
+        sprintf(s, "Unable to open %s for writing", LAST_FILE_STOR);
+        DEBUG_PRINT(s);
       }
       lf.close();
     }
@@ -151,14 +150,14 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
     {
       should_decrem = true;
       sprintf(s, "Could not open %s for writing!", last_file);
-      Serial.println(s);
+      DEBUG_PRINT(s);
     }
   }
   else
   {
     should_decrem = true;
     sprintf(s, "Could not open %s, file already exists!", last_file);
-    Serial.println(s);
+    DEBUG_PRINT(s);
   }
 
   /*
@@ -174,10 +173,10 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
 
 void daq_read_last_file(char *buf, int *recv_len)
 {
+  char s[32];
   if (SD.exists(last_file)) {
-    Serial.print("Reading data from ");
-    Serial.print(last_file);
-    Serial.println();
+    sprintf(s, "Reading data from %s");
+    DEBUG_PRINT(s);
     File readFile = SD.open(last_file, FILE_READ);
     if (readFile) {
       int i;
@@ -189,10 +188,10 @@ void daq_read_last_file(char *buf, int *recv_len)
       new_file_available = false;
     }
     else
-      Serial.println(F("SD-card read failed"));
+      DEBUG_PRINT("SD-card read failed");
   }
   else
-    Serial.println(F("SD-card read failed, file does not exist."));
+    DEBUG_PRINT("SD-card read failed, file does not exist.");
 }
 
 
@@ -204,30 +203,36 @@ bool daq_new_file_available()
 
 void daq_read_file(char location[12], unsigned char *buf)
 {
-  File confFile = SD.open(location, FILE_READ);
-  if (confFile) {
-    for (int i = 0; confFile.available(); i++) {
-      buf[i] = confFile.read();
+  char s[32];
+  File f = SD.open(location, FILE_READ);
+  if (f) {
+    for (int i = 0; f.available(); i++) {
+      buf[i] = f.read();
     }
-    Serial.println(F("SD-card Read"));
+    sprintf(s, "SD-card read from %s", location);
+    DEBUG_PRINT(s);
   }
   else
-    Serial.println(F("SD-card read failed"));
-  confFile.close();
+    DEBUG_PRINT("SD-card read failed");
+  f.close();
 }
 
 
 int daq_delete_all_files(void)
 {
   int deleted_files = 0;
+  char s[32];
+
   while(SD.exists(last_file)){
     SD.remove(last_file);
     decrement_file_number(last_file);
     deleted_files++;
   }
+
   File root = SD.open("/");
   root.rewindDirectory();
-  while(true){
+  
+  while(true) {
     File remaining_file = root.openNextFile();
     if(!remaining_file)
       break;
@@ -236,8 +241,9 @@ int daq_delete_all_files(void)
     SD.remove(next_file);
     deleted_files++;
   }
-  Serial.println("All files removed from SD-card");
-  Serial.print("Starting over from ");
-  Serial.println(last_file);
+
+  DEBUG_PRINT("All files removed from SD-card");
+  sprintf(s, "Starting over from %s", last_file);
+  DEBUG_PRINT(s);
   return deleted_files;
 }
