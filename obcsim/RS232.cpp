@@ -92,7 +92,7 @@ void RS_read(msp_link_t *lnk)
       if (fill_commanddata(len)) {
         DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_DAQ_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_CONF, commanddata, len, BYTES);
-        rtc_set_daq_time(commanddata[0]);
+        daq_set_dur(commanddata[0]);
       }
       break;
     case CMD_SEND_GATEWARE_CONF:
@@ -107,7 +107,7 @@ void RS_read(msp_link_t *lnk)
       DEBUG_PRINT("CMD_DAQ_START received");
       DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
-      rtc_enable_timed_daq(true);
+      daq_start_dur_timer();
       break;
     case CMD_DAQ_STOP:
       DEBUG_PRINT("CMD_DAQ_STOP received");
@@ -116,7 +116,7 @@ void RS_read(msp_link_t *lnk)
       for (int i = 0; i < 1000; i++) ; /* Wait for gateware to receive command and finish */
       DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-      rtc_enable_timed_daq(false);
+      daq_stop_dur_timer();
       daq_write_new_file(recv_buf, recv_len);
       break;
     case CMD_DEL_FILES:
@@ -149,7 +149,7 @@ void RS_read(msp_link_t *lnk)
       /* ... and reply with status */
       obcsim_status =
         ((daq_new_file_available() ? 1 : 0) << 1) |
-        (rtc_timed_daq_enabled() ? 1 : 0);
+        (daq_running() ? 1 : 0);
       sprintf(s, "Sending obcsim_status %d", obcsim_status);
       RS_send(&obcsim_status, 1);
       break;
@@ -181,7 +181,7 @@ void RS_read(msp_link_t *lnk)
         sprintf(s, "Attempting to program to RTC received Unix time %d", timedata);
         DEBUG_PRINT(s);
         rtc_set_time(timedata);
-        sprintf(s, "RTC time after programming is %d", rtc_get_seconds());
+        sprintf(s, "RTC time after programming is %d", rtc_get_time());
         DEBUG_PRINT(s);
         DEBUG_PRINT("Invoking MSP_OP_SEND_TIME");
         invoke_send(lnk, MSP_OP_SEND_TIME, commanddata, len, BYTES);
@@ -197,12 +197,12 @@ void RS_read(msp_link_t *lnk)
 
 void RS_send(unsigned char *sends, int len)
 {
-  DateTime CurrentTime = rtc_get();
+  long ut = rtc_get_time();
 
   DEBUG_PRINT("Sending REQ'd data");
 
   Serial1.print("Unix time: ");
-  Serial1.println(CurrentTime.unixtime());
+  Serial1.println(ut);
   Serial1.write(sends, len);
   Serial1.println("");
 }

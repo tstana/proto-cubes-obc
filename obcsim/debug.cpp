@@ -43,7 +43,7 @@ void debug_init(void)
  */
 void debug_print_string(char *filename, int line, char* msg)
 {
-    Serial.print(rtc_get().unixtime());
+    Serial.print(rtc_get_time());
     Serial.print(";");
     /* `strrchr()` strips away all from path but file name */
     Serial.print(1+strrchr(filename, '\\'));

@@ -15,8 +15,17 @@
 /* ... and the local variable to refer to during operation */
 static char last_file[13] = "daq0000.dat";
 
-/* Status flag for... */
+/*
+ * Status flag to indicate whether a new file is availalbe for readout from
+ * SD card
+ */
 static bool new_file_available = false;
+
+/* Variables for DAQ time and status */
+static uint8_t daq_dur_ardu = 0;
+static long time_daq_start = 0;
+static bool timed_daq_en = false;
+
 
 /**
  * increment_file_number()
@@ -39,6 +48,7 @@ static void increment_file_number(char *name)
 
   sprintf(name, "daq%04d.dat", n);
 }
+
 
 /**
  * decrement_file_number()
@@ -246,4 +256,51 @@ int daq_delete_all_files(void)
   sprintf(s, "Starting over from %s", last_file);
   DEBUG_PRINT(s);
   return deleted_files;
+}
+
+
+boolean daq_data_request_timeout(void)
+{
+  long time_now = rtc_get_time();
+  long time_delta = time_now - time_daq_start;
+  
+  return (time_delta >= daq_dur_ardu) ? true : false;
+}
+
+
+void daq_set_dur(uint8_t cubes_dur)
+{
+  daq_dur_ardu = cubes_dur + 1;
+}
+
+
+void daq_start_dur_timer(void)
+{
+  /*
+   * Set time_daq_start to the current time, so that data is requested from
+   * the CUBES PCB after DAQ_DUR plus an offset to account for timing
+   * mismatches.
+   * 
+   * Then, set the "member" variable to indicate timed DAQ is running.
+   */
+  time_daq_start = rtc_get_time();
+  timed_daq_en = true;
+}
+
+
+void daq_stop_dur_timer(void)
+{
+  /*
+   * Set time_daq_start to 2^32-1 so that timed DAQ "never triggers"
+   * while off. Also set "member" variable to indicate timed DAQ is
+   * not running.
+   */
+  time_daq_start = 4294967295;
+  timed_daq_en = false;
+}
+
+
+bool daq_running(void)
+{
+  return timed_daq_en;
 }

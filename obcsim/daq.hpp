@@ -73,4 +73,42 @@ bool daq_new_file_available();
 int daq_delete_all_files(void);
 
 
+/**
+ * @brief Check whether the Arduino's DAQ_DUR timer has timed out
+ * 
+ * @param None
+ * 
+ * @return Boolean value, true when DAQ_DUR timer timed out
+ */
+boolean daq_data_request_timeout(void);
+
+
+/**
+ * @brief Set DAQ_DUR on Arduino, DAQ_DUR sent to CUBES + 1 second
+ * 
+ * @param cubes_dur DAQ_DUR sent to CUBES, `uint8_t`, in seconds
+ * 
+ * @return None
+ */
+void daq_set_dur(uint8_t cubes_dur);
+
+
+/**
+ * @brief Start the Arduino's DAQ_DUR timer
+ */
+void daq_start_dur_timer(void);
+
+
+/**
+ * @brief Stop the Arduino's DAQ_DUR timer
+ */
+void daq_stop_dur_timer(void);
+
+
+/**
+ * @brief Check whether DAQ is on-going
+ */
+bool daq_running(void);
+
+
 #endif

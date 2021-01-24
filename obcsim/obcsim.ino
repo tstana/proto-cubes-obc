@@ -39,7 +39,7 @@ static bool cubes_send_rtc_time(void*)
 
   DEBUG_PRINT("Syncing CUBES UTC time");
   DEBUG_PRINT("Invoking MSP_OP_SEND_TIME");
-  to_bigendian32(current_time, rtc_get_seconds());
+  to_bigendian32(current_time, rtc_get_time());
   invoke_send(&exp_link, MSP_OP_SEND_TIME, current_time, 4, BYTES);
 
   return true;
@@ -150,11 +150,10 @@ void loop()
   }
 
   /* Finally, request payload on DAQ timeout (if DAQ is running) */
-  if (rtc_timed_daq_enabled() && rtc_data_request_timeout()) {
+  if (daq_running() && daq_data_request_timeout()) {
 
-    /* Stop sync and DAQ timers */
     //cubes_sync_stop();
-    rtc_enable_timed_daq(false);
+    daq_stop_dur_timer();
     
     /* Request new histogram data and write it to SD card */
     DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
@@ -166,7 +165,7 @@ void loop()
     DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
     invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
 
-    rtc_enable_timed_daq(true);
+    daq_start_dur_timer();
     //cubes_sync_start();
   }
 }
