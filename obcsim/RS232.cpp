@@ -110,7 +110,7 @@ void RS_read(msp_link_t *lnk)
 
     case CMD_SEND_DAQ_CONF:
       DEBUG_PRINT("CMD_SEND_DAQ_CONF received");
-      len = 2;
+      len = 7;  // 1 byte for DAQ_DUR + 6 bytes for BIN_CFG
       if (fill_commanddata(len)) {
         DEBUG_PRINT("Invoking MSP_OP_SEND_CUBES_DAQ_CONF");
         invoke_send(lnk, MSP_OP_SEND_CUBES_DAQ_CONF, commanddata, len, BYTES);
