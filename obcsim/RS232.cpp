@@ -42,7 +42,7 @@ void RS_read(msp_link_t *lnk)
 {
   unsigned char command = Serial1.read();
   int len;
-  char s[32] = "";
+  char s[64] = "";
   unsigned char obcsim_status = 0x00;
 
   switch (command) {
@@ -178,7 +178,7 @@ void RS_read(msp_link_t *lnk)
       len = 4;
       if (fill_commanddata(len)) {
         uint32_t timedata = from_bigendian32(commanddata);
-        sprintf(s, "Attempting to program to RTC received Unix time %d", timedata);
+        sprintf(s, "Attempting to program to RTC the received Unix time %d", timedata);
         DEBUG_PRINT(s);
         rtc_set_time(timedata);
         sprintf(s, "RTC time after programming is %d", rtc_get_time());

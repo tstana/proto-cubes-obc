@@ -75,7 +75,7 @@ static void decrement_file_number(char *name)
 
 void daq_init(void)
 {
-  char s[32];
+  char s[64];
 
   DEBUG_PRINT("SD card initializing...");
   SD.begin(10); // Pin 4 on ethernet shield, pin 10 on SD-prototype board
@@ -87,7 +87,7 @@ void daq_init(void)
     lf.read(last_file, sizeof(last_file));
     lf.close();
   } else {
-    sprintf(s, "Could not find a last file named %s", LAST_FILE_STOR);
+    sprintf(s, "Could not find a \"last DAQ\" file named %s", LAST_FILE_STOR);
     DEBUG_PRINT(s);
     DEBUG_PRINT("Attempting to find any files actually written to disk...");
   }
@@ -121,7 +121,7 @@ void daq_init(void)
 
 void daq_write_new_file(unsigned char *data, unsigned long len)
 {
-  char s[32];
+  char s[64];
   bool should_decrem = false;
 
   /*
@@ -183,9 +183,9 @@ void daq_write_new_file(unsigned char *data, unsigned long len)
 
 void daq_read_last_file(char *buf, int *recv_len)
 {
-  char s[32];
+  char s[64];
   if (SD.exists(last_file)) {
-    sprintf(s, "Reading data from %s");
+    sprintf(s, "Reading data from %s", last_file);
     DEBUG_PRINT(s);
     File readFile = SD.open(last_file, FILE_READ);
     if (readFile) {

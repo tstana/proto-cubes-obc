@@ -59,7 +59,7 @@ void invoke_send(msp_link_t *lnk, unsigned char opcode, unsigned char *data, uns
 	print_response(r, "");
 	if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		if (pstyle != NONE)
-			Serial.print(F("\nSent "));
+			Serial.print(F("Sent "));
 		print_data(data, len, pstyle);
 	} else if ((r.status == MSP_RESPONSE_ERROR) && (r.error_code == MSP_OBC_ERR_DATA_NOT_SENT)) {
 		Serial.println(F("OBC Send request not executed,"));
@@ -111,7 +111,7 @@ void invoke_send_repeat(msp_link_t *lnk, unsigned char opcode, unsigned char val
 	print_response(r, "");
 	if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		if (pstyle != NONE) {
-			Serial.print(F("\nSent a sequence of "));
+			Serial.print(F("Sent a sequence of "));
 			Serial.print(times, DEC);
 			Serial.print(F(" bytes with value 0x"));
 			Serial.print(value, HEX);
@@ -144,7 +144,7 @@ void invoke_request(msp_link_t *lnk, unsigned char opcode, unsigned char *recv_b
 	} else if (r.status == MSP_RESPONSE_TRANSACTION_SUCCESSFUL) {
 		*recv_length = r.len;
 		if (pstyle != NONE)
-			Serial.print(F("\nReceived "));
+			Serial.print(F("Received "));
 		print_data(request_buffer, r.len, pstyle);
 	}
 }

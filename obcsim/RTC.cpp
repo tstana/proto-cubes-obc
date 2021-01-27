@@ -8,7 +8,7 @@ static RTC_PCF8523 rtc;
 
 void rtc_init(void)
 {
-  char s[32];
+  char s[64];
   DEBUG_PRINT("RTC initializing");
   if (!rtc.begin()) {
     Serial.println("RTC could not be found");
