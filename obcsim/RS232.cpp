@@ -151,6 +151,7 @@ void RS_read(msp_link_t *lnk)
         ((daq_new_file_available() ? 1 : 0) << 1) |
         (daq_running() ? 1 : 0);
       sprintf(s, "Sending obcsim_status %d", obcsim_status);
+      DEBUG_PRINT(s);
       RS_send(&obcsim_status, 1);
       break;
     case CMD_REQ_PAYLOAD:
@@ -197,9 +198,11 @@ void RS_read(msp_link_t *lnk)
 
 void RS_send(unsigned char *sends, int len)
 {
+  char s[64];
   long ut = rtc_get_time();
 
-  DEBUG_PRINT("Sending REQ'd data");
+  sprintf(s, "Sending reply to REQ, %d bytes", len);
+  DEBUG_PRINT(s);
 
   Serial1.print("Unix time: ");
   Serial1.println(ut);
