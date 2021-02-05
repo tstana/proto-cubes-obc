@@ -1,21 +1,19 @@
 /*
    obcsim.ino
 
-   Main file for the OBC simulator.
+   Main file for the CUBES OBC simulator.
 */
 
 #include <Arduino.h>
-#include <arduino-timer.h>
 
 #include "msp_obc.h"
+#include "obcsim_transactions.hpp"
+#include "obcsim_configuration.hpp"
+
 #include "debug.hpp"
 #include "daq.hpp"
-#include "obcsim_configuration.hpp"
-#include "obcsim_transactions.hpp"
 #include "RS232.hpp"
 #include "rtc.hpp"
-#include "obcsim_transactions.hpp"
-#include "obcsim_configuration.hpp"
 
 
 #define I2C_SPEED (400L*1000L)
@@ -33,7 +31,7 @@ extern bool msp_i2c_error;
 
 
 /* Send Unix time readout to CUBES */
-static bool cubes_send_rtc_time(void*)
+static void cubes_send_rtc_time()
 {
   unsigned char current_time[4];
 
@@ -41,37 +39,8 @@ static bool cubes_send_rtc_time(void*)
   DEBUG_PRINT("Invoking MSP_OP_SEND_TIME");
   to_bigendian32(current_time, rtc_get_time());
   invoke_send(&exp_link, MSP_OP_SEND_TIME, current_time, 4, BYTES);
-
-  return true;
 }
 
-/*
- * CUBES timer sync
- */
-static auto sync_timer = timer_create_default();
-static uintptr_t sync_task;
-
-// TODO (if no need for stopping the "sync task"):
-//  (1) Move the contents of this func. inside cubes_reset()
-//  (2) Remove "sync_task" variable.
-static void cubes_sync_start()
-{
-  DEBUG_PRINT("Starting CUBES sync task at 30-second interval.");
-  sync_task = sync_timer.every(30000, cubes_send_rtc_time);
-}
-
-// TODO: Remove this func.?
-static void cubes_sync_tick()
-{
-  sync_timer.tick();
-}
-
-// TODO: Remove this func.?
-static void cubes_sync_stop()
-{
-  DEBUG_PRINT("Stopping CUBES sync task.");
-  sync_timer.cancel(sync_task);
-}
 
 /* Reset CUBES board */
 static void cubes_reset()
@@ -92,7 +61,7 @@ static void cubes_reset()
   DEBUG_PRINT("Invoking ACTIVE (MSP)");
   invoke_syscommand(&exp_link, MSP_OP_ACTIVE);
 
-  cubes_send_rtc_time(NULL);
+  cubes_send_rtc_time();
 }
 
 
@@ -116,9 +85,6 @@ void setup()
   /* Init CUBES reset pin and assert CUBES reset */
   pinMode(CUBES_RESET_PIN, OUTPUT);
   cubes_reset();
-
-  /* Start sync timer */
-  cubes_sync_start();
 }
 
 
@@ -141,31 +107,29 @@ void loop()
     msp_i2c_start(I2C_SPEED, I2C_TIMEOUT);
   }
 
-  /* Tick CUBES sync timer */
-  cubes_sync_tick();
-
   /* Process any incoming commands */
   if (Serial1.available()) {
     RS_read(&exp_link);
   }
 
   /* Finally, request payload on DAQ timeout (if DAQ is running) */
-  if (daq_running() && daq_data_request_timeout()) {
+  if (daq_running()) {
+    if (daq_data_request_timeout()) {
+      daq_stop_timers();
+      
+      /* Request new histogram data and write it to SD card */
+      DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
+      invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
 
-    //cubes_sync_stop();
-    daq_stop_dur_timer();
-    
-    /* Request new histogram data and write it to SD card */
-    DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
-    invoke_request(&exp_link, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
+      daq_write_new_file(recv_buf, recv_len);
+      
+      /* Re-start DAQ */
+      DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
+      invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
 
-    daq_write_new_file(recv_buf, recv_len);
-    
-    /* Re-start DAQ */
-    DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
-    invoke_syscommand(&exp_link, MSP_OP_CUBES_DAQ_START);
-
-    daq_start_dur_timer();
-    //cubes_sync_start();
+      daq_start_timers();
+    } else if (daq_sync_timeout()) {
+      cubes_send_rtc_time();
+    }
   }
 }

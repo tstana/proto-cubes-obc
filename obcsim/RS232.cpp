@@ -183,7 +183,7 @@ void RS_read(msp_link_t *lnk)
       DEBUG_PRINT("CMD_DAQ_START received");
       DEBUG_PRINT("Invoking MSP_OP_CUBES_DAQ_START");
       invoke_syscommand(lnk, MSP_OP_CUBES_DAQ_START);
-      daq_start_dur_timer();
+      daq_start_timers();
       break;
 
     case CMD_DAQ_STOP:
@@ -193,7 +193,7 @@ void RS_read(msp_link_t *lnk)
       for (int i = 0; i < 1000; i++) ; /* Wait for gateware to receive command and finish */
       DEBUG_PRINT("Invoking MSP_OP_REQ_PAYLOAD");
       invoke_request(lnk, MSP_OP_REQ_PAYLOAD, recv_buf, &recv_len, NONE);
-      daq_stop_dur_timer();
+      daq_stop_timers();
       daq_write_new_file(recv_buf, recv_len);
       break;
 

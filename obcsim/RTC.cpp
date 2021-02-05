@@ -29,7 +29,7 @@ void rtc_set_time(uint32_t timestamp){
   rtc.adjust(DateTime(timestamp));
 }
 
-long rtc_get_time(void)
+uint32_t rtc_get_time(void)
 {
   return (rtc.now()).unixtime();
 }

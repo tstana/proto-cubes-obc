@@ -23,9 +23,11 @@ static bool new_file_available = false;
 
 /* Variables for DAQ time and status */
 static uint8_t daq_dur_ardu = 0;
-static long time_daq_start = 0;
+static uint32_t time_daq_start = 0;
 static bool timed_daq_en = false;
 
+static uint32_t time_sync = 0;
+static const uint32_t SYNC_OFFSET = 30; // seconds
 
 /**
  * increment_file_number()
@@ -261,10 +263,24 @@ int daq_delete_all_files(void)
 
 boolean daq_data_request_timeout(void)
 {
-  long time_now = rtc_get_time();
-  long time_delta = time_now - time_daq_start;
+  uint32_t now = rtc_get_time();
+  uint32_t delta = now - time_daq_start;
   
-  return (time_delta >= daq_dur_ardu) ? true : false;
+  return (delta >= daq_dur_ardu) ? true : false;
+}
+
+
+boolean daq_sync_timeout(void)
+{
+  uint32_t now = rtc_get_time();
+  uint32_t delta = time_sync - now;
+
+  if (delta > SYNC_OFFSET) {
+    time_sync = now + SYNC_OFFSET;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
@@ -274,28 +290,33 @@ void daq_set_dur(uint8_t cubes_dur)
 }
 
 
-void daq_start_dur_timer(void)
+void daq_start_timers(void)
 {
   /*
    * Set time_daq_start to the current time, so that data is requested from
    * the CUBES PCB after DAQ_DUR plus an offset to account for timing
-   * mismatches.
+   * mismatches. Also set the sync. time, so that periodic time synchronization
+   * with CUBES is performed.
    * 
    * Then, set the "member" variable to indicate timed DAQ is running.
    */
-  time_daq_start = rtc_get_time();
+  uint32_t now = rtc_get_time();
+
+  time_daq_start = now;
+  time_sync = now + SYNC_OFFSET;
   timed_daq_en = true;
 }
 
 
-void daq_stop_dur_timer(void)
+void daq_stop_timers(void)
 {
   /*
-   * Set time_daq_start to 2^32-1 so that timed DAQ "never triggers"
+   * Set local times to 2^32-1 so that timed DAQ "never triggers"
    * while off. Also set "member" variable to indicate timed DAQ is
    * not running.
    */
-  time_daq_start = 4294967295;
+  time_daq_start = UINT32_MAX;
+  time_sync = UINT32_MAX;
   timed_daq_en = false;
 }
 

@@ -84,6 +84,18 @@ boolean daq_data_request_timeout(void);
 
 
 /**
+ * @brief Check whether it is time to sync CUBES and set a new
+ *        sync time
+ * 
+ * @param None
+ * 
+ * @return Boolean value, true if time synchronization with
+ *         CUBES should be done.
+ */
+boolean daq_sync_timeout(void);
+
+
+/**
  * @brief Set DAQ_DUR on Arduino, DAQ_DUR sent to CUBES + 1 second
  * 
  * @param cubes_dur DAQ_DUR sent to CUBES, `uint8_t`, in seconds
@@ -94,15 +106,15 @@ void daq_set_dur(uint8_t cubes_dur);
 
 
 /**
- * @brief Start the Arduino's DAQ_DUR timer
+ * @brief Start the Arduino's DAQ_DUR and sync timers
  */
-void daq_start_dur_timer(void);
+void daq_start_timers(void);
 
 
 /**
- * @brief Stop the Arduino's DAQ_DUR timer
+ * @brief Stop the Arduino's DAQ_DUR and sync timers
  */
-void daq_stop_dur_timer(void);
+void daq_stop_timers(void);
 
 
 /**

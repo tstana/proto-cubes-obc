@@ -22,8 +22,8 @@ void rtc_set_time(uint32_t unix_timestamp);
  * 
  * @param None
  * 
- * @return long Unix timestamp
+ * @return uint32_t Unix timestamp
  */
-long rtc_get_time(void);
+uint32_t rtc_get_time(void);
 
 #endif //__RTC_HPP__
